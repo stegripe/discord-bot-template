@@ -1,79 +1,25 @@
-const hey = [
-    73,
-    102,
-    32,
-    121,
-    111,
-    117,
-    39,
-    114,
-    101,
-    32,
-    115,
-    101,
-    101,
-    105,
-    110,
-    103,
-    32,
-    116,
-    104,
-    105,
-    115,
-    32,
-    109,
-    101,
-    115,
-    115,
-    97,
-    103,
-    101,
-    44,
-    32,
-    116,
-    104,
-    97,
-    116,
-    32,
-    109,
-    101,
-    97,
-    110,
-    115,
-    32,
-    121,
-    111,
-    117,
-    39,
-    114,
-    101,
-    32,
-    114,
-    101,
-    97,
-    100,
-    121,
-    32,
-    116,
-    111,
-    32,
-    99,
-    114,
-    101,
-    97,
-    116,
-    101,
-    32,
-    97,
-    32,
-    112,
-    114,
-    111,
-    106,
-    101,
-    99,
-    116,
-    33
-];
+import { isDev, shardingMode, shardsCount } from "./config/index.js";
+import { createLogger } from "./utils/functions/createLogger.js";
+import { ShardingManager } from "discord.js";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-console.log(hey.map(x => String.fromCharCode(x)).join(""));
+const log = createLogger({
+    name: "ShardManager",
+    type: "manager",
+    dev: isDev
+});
+
+const manager = new ShardingManager(resolve(dirname(fileURLToPath(import.meta.url)), "bot.js"), {
+    totalShards: shardsCount,
+    respawn: true,
+    token: process.env.DISCORD_TOKEN,
+    mode: shardingMode
+});
+
+manager.on("shardCreate", shard => {
+    log.info(`Shard #${shard.id} has spawned.`);
+    shard.on("disconnect", () => log.warn("SHARD_DISCONNECTED: ", { stack: `Shard #${shard.id} has disconnected.` }))
+        .on("reconnecting", () => log.info("SHARD_RECONNECTING: ", { stack: `Shard #${shard.id} is reconnecting.` }));
+    if (manager.shards.size === manager.totalShards) log.info("All shards are spawned successfully.");
+}).spawn().catch(e => log.error(e));
