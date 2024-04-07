@@ -32,7 +32,7 @@
     },
     "devDependencies": {
         "@clytage/eslint-config": "^3.0.1",
-        "@types/node": "^20.12.4",
+        "@types/node": "^20.12.5",
         "@typescript-eslint/eslint-plugin": "^7.5.0",
         "@typescript-eslint/parser": "^7.5.0",
         "eslint": "^8.57.0",
@@ -44,7 +44,7 @@
         "discord.js": "^14.14.1",
         "dotenv": "^16.4.5",
         "got": "^14.2.1",
-        "pino": "^8.19.0",
+        "pino": "^8.20.0",
         "pino-pretty": "^11.0.0",
         "tree-kill": "^1.2.2",
         "tslib": "^2.6.2"
