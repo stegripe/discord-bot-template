@@ -33,11 +33,11 @@
     "devDependencies": {
         "@clytage/eslint-config": "^3.0.1",
         "@types/node": "^20.12.7",
-        "@typescript-eslint/eslint-plugin": "^7.13.1",
-        "@typescript-eslint/parser": "^7.13.1",
+        "@typescript-eslint/eslint-plugin": "^7.14.1",
+        "@typescript-eslint/parser": "^7.14.1",
         "eslint": "^8.57.0",
         "rimraf": "^5.0.5",
-        "typescript": "^5.4.5"
+        "typescript": "^5.5.2"
     },
     "dependencies": {
         "date-fns": "^3.6.0",
