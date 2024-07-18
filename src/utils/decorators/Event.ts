@@ -1,5 +1,5 @@
-import { ClassDecorator, NonAbstractConstructor } from "../../typings/index.js";
-import { BaseEvent, EventConstructor } from "../../structures/BaseEvent.js";
+import type { BaseEvent, EventConstructor } from "../../structures/BaseEvent.js";
+import type { ClassDecorator, NonAbstractConstructor } from "../../typings/index.js";
 
 export function Event<T extends NonAbstractConstructor<any> = EventConstructor>(
     event: BaseEvent["name"]

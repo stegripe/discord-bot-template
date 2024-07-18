@@ -1,6 +1,6 @@
-import { CommandComponent } from "../typings/index.js";
-import { CommandContext } from "./CommandContext.js";
-import { BotClient } from "./BotClient.js";
+import type { CommandComponent } from "../typings/index.js";
+import type { BotClient } from "./BotClient.js";
+import type { CommandContext } from "./CommandContext.js";
 
 export abstract class BaseCommand implements CommandComponent {
     public constructor(public readonly client: BotClient, public meta: CommandComponent["meta"]) {}

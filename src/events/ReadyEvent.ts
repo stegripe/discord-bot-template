@@ -7,7 +7,7 @@ export class ReadyEvent extends BaseEvent {
     public async execute(): Promise<void> {
         await this.doPresence();
         this.client.logger.info(await this.formatString("{tag} is ready to serve {userCount} users on {guildCount} guilds with " +
-            "{textChannelCount} text channels and {voiceChannelCount} voice channels."));
+        "{textChannelCount} text channels and {voiceChannelCount} voice channels."));
     }
 
     private async formatString(text: string): Promise<string> {
@@ -16,27 +16,27 @@ export class ReadyEvent extends BaseEvent {
         if (text.includes("{userCount}")) {
             const users = await this.client.utils.getUserCount();
 
-            newText = newText.replace(/{userCount}/g, users.toString());
+            newText = newText.replaceAll("{userCount}", users.toString());
         }
         if (text.includes("{textChannelCount}")) {
             const textChannels = await this.client.utils.getChannelCount(true);
 
-            newText = newText.replace(/{textChannelCount}/g, textChannels.toString());
+            newText = newText.replaceAll("{textChannelCount}", textChannels.toString());
         }
         if (text.includes("{voiceChannelCount}")) {
             const voiceChannels = await this.client.utils.getChannelCount(false, true);
 
-            newText = newText.replace(/{voiceChannelCount}/g, voiceChannels.toString());
+            newText = newText.replaceAll("{voiceChannelCount}", voiceChannels.toString());
         }
         if (text.includes("{guildCount}")) {
             const guilds = await this.client.utils.getGuildCount();
 
-            newText = newText.replace(/{guildCount}/g, guilds.toString());
+            newText = newText.replaceAll("{guildCount}", guilds.toString());
         }
 
         return newText
-            .replace(/{prefix}/g, this.client.config.prefix)
-            .replace(/{tag}/g, this.client.user!.tag);
+            .replaceAll("{prefix}", this.client.config.prefix)
+            .replaceAll("{tag}", this.client.user!.tag);
     }
 
     private async setPresence(random: boolean): Promise<Presence> {
@@ -55,7 +55,7 @@ export class ReadyEvent extends BaseEvent {
         )[activityNumber];
 
         return this.client.user!.setPresence({
-            activities: (activity as { name: string } | undefined) ? [activity] : [],
+            activities: (activity as { name: string; } | undefined) ? [activity] : [],
             status: this.client.config.presenceData.status[statusNumber]
         });
     }
@@ -63,13 +63,13 @@ export class ReadyEvent extends BaseEvent {
     private async doPresence(): Promise<Presence | undefined> {
         try {
             return await this.setPresence(false);
-        } catch (e) {
-            if ((e as Error).message !== "Shards are still being spawned.") {
-                this.client.logger.error(String(e));
+        } catch (error) {
+            if ((error as Error).message !== "Shards are still being spawned.") {
+                this.client.logger.error(String(error));
             }
             return undefined;
         } finally {
-            setInterval(() => this.setPresence(true), this.client.config.presenceData.interval);
+            setInterval(async () => this.setPresence(true), this.client.config.presenceData.interval);
         }
     }
 }

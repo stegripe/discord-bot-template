@@ -1,12 +1,12 @@
-import { CommandContext } from "../../structures/CommandContext.js";
-import { createEmbed } from "../../utils/functions/createEmbed.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { Command } from "../../utils/decorators/Command.js";
 import { ColorResolvable } from "discord.js";
+import { BaseCommand } from "../../structures/BaseCommand.js";
+import { CommandContext } from "../../structures/CommandContext.js";
+import { Command } from "../../utils/decorators/Command.js";
+import { createEmbed } from "../../utils/functions/createEmbed.js";
 
 @Command<typeof PingCommand>({
     aliases: ["pong", "pang", "pung", "peng", "pingpong"],
-    description: "Shows current ping of the bot",
+    description: "Shows current ping of the bot.",
     name: "ping",
     usage: "{prefix}ping"
 })

@@ -1,6 +1,6 @@
 import { pino } from "pino";
 
-type ProcessType = { type: "manager" } | { type: "shard"; shardId: number };
+type ProcessType = { type: "manager"; } | { type: "shard"; shardId: number; };
 type LoggerOptions = ProcessType & {
     name: string;
     dev?: boolean;

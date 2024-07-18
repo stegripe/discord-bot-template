@@ -1,11 +1,12 @@
-import { CategoryMeta, CommandComponent, RegisterCmdOptions } from "../../typings/index.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { createEmbed } from "../functions/createEmbed.js";
-import { BotClient } from "../../structures/BotClient.js";
-import { ApplicationCommandData, ApplicationCommandType, Collection, Message, Snowflake, TextChannel } from "discord.js";
 import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import type { ApplicationCommandData, Message, Snowflake, TextChannel } from "discord.js";
+import { ApplicationCommandType, Collection } from "discord.js";
+import type { BaseCommand } from "../../structures/BaseCommand.js";
+import type { BotClient } from "../../structures/BotClient.js";
 import { CommandContext } from "../../structures/CommandContext.js";
+import type { CategoryMeta, CommandComponent, RegisterCmdOptions } from "../../typings/index.js";
+import { createEmbed } from "../functions/createEmbed.js";
 
 export class CommandManager extends Collection<string, CommandComponent> {
     public readonly categories = new Collection<string, CategoryMeta>();
@@ -33,7 +34,7 @@ export class CommandManager extends Collection<string, CommandComponent> {
         this.client.logger.info(`Found ${catFolders.length} categories, registering...`);
 
         for (const cf of catFolders) {
-            const meta = await this.client.utils.importFile<{ default: CategoryMeta }>(
+            const meta = await this.client.utils.importFile<{ default: CategoryMeta; }>(
                 resolve(dir, cf, "category.meta.js")
             ).then(x => x.default);
             let disabled = 0;
@@ -48,8 +49,8 @@ export class CommandManager extends Collection<string, CommandComponent> {
                     const path = resolve(dir, cf, file);
                     const command = await this.client.utils.importClass<BaseCommand>(path, this.client);
 
-                    if (!command) throw new Error(`File "${file}" is not a valid command file`);
-                    if (this.has(command.meta.name)) throw new Error(`Command "${command.meta.name}" has already been registered`);
+                    if (!command) throw new Error(`File "${file}" is not a valid command file.`);
+                    if (this.has(command.meta.name)) throw new Error(`Command "${command.meta.name}" has already been registered.`);
 
                     this.loadComponent(meta, path, command);
 
@@ -72,9 +73,9 @@ export class CommandManager extends Collection<string, CommandComponent> {
                     meta.cmds.push(command.meta.name);
                     this.client.logger.info(`Command ${command.meta.name} from ${cf} category is now loaded.`);
                     if (command.meta.disable) disabled++;
-                } catch (err) {
+                } catch (error) {
                     this.client.logger.error(
-                        `Error occured while loading ${file}: ${(err as Error).message}`
+                        `Error occured while loading ${file}: ${(error as Error).message}`
                     );
                 }
             }
@@ -82,7 +83,7 @@ export class CommandManager extends Collection<string, CommandComponent> {
             this.categories.set(cf, meta);
 
             if (disabled) {
-                this.client.logger.info(`${disabled} out of ${files.length} commands in ${cf} category is disabled"`);
+                this.client.logger.info(`${disabled} out of ${files.length} commands in ${cf} category is disabled."`);
             }
 
             this.client.logger.info(`Done registering ${cf} category.`);
@@ -99,12 +100,12 @@ export class CommandManager extends Collection<string, CommandComponent> {
 
         const now = Date.now();
         const timestamps = this.cooldowns.get(command.meta.name);
-        const cooldownAmount = (command.meta.cooldown ?? 3) * 1000;
+        const cooldownAmount = (command.meta.cooldown ?? 3) * 1_000;
 
         if (timestamps?.has(message.author.id)) {
             const expirationTime = timestamps.get(message.author.id)! + cooldownAmount;
             if (now < expirationTime) {
-                const timeLeft = (expirationTime - now) / 1000;
+                const timeLeft = (expirationTime - now) / 1_000;
 
                 message.reply({
                     embeds: [
@@ -114,8 +115,8 @@ export class CommandManager extends Collection<string, CommandComponent> {
                         )
                     ]
                 }).then(msg => {
-                    setTimeout(() => msg.delete(), 3500);
-                }).catch(e => this.client.logger.error("PROMISE_ERR:", e));
+                    setTimeout(async () => msg.delete(), 3_500);
+                }).catch(error => this.client.logger.error("PROMISE_ERR:", error));
 
                 return;
             }
@@ -131,8 +132,8 @@ export class CommandManager extends Collection<string, CommandComponent> {
 
         try {
             command.execute(new CommandContext(message, args));
-        } catch (err) {
-            this.client.logger.error(err, "COMMAND_HANDLER_ERR:");
+        } catch (error) {
+            this.client.logger.error(error, "COMMAND_HANDLER_ERR:");
         } finally {
             this.client.logger.info(
                 `${message.author.tag} [${message.author.id}] is using ${command.meta.name} [${command.meta.category!}] command` +
@@ -148,18 +149,18 @@ export class CommandManager extends Collection<string, CommandComponent> {
             await manager.create({
                 name: cmd.meta.name,
                 type: ApplicationCommandType.Message
-            }).catch(err => options.onError(options.guild ?? null, err as Error, "message"));
+            }).catch(error => options.onError(options.guild ?? null, error as Error, "message"));
         }
 
         if (cmd.meta.contextUser) {
             await manager.create({
                 name: cmd.meta.name,
                 type: ApplicationCommandType.User
-            }).catch(err => options.onError(options.guild ?? null, err as Error, "user"));
+            }).catch(error => options.onError(options.guild ?? null, error as Error, "user"));
         }
 
         if (cmd.meta.slash) {
-            await manager.create(cmd.meta.slash as ApplicationCommandData).catch(err => options.onError(options.guild ?? null, err as Error, "slash"));
+            await manager.create(cmd.meta.slash as ApplicationCommandData).catch(error => options.onError(options.guild ?? null, error as Error, "slash"));
         }
     }
 

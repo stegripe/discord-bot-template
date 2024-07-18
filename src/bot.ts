@@ -1,5 +1,5 @@
-import { BotClient } from "./structures/BotClient.js";
 import { clientOptions } from "./config/index.js";
+import { BotClient } from "./structures/BotClient.js";
 
 const client = new BotClient(clientOptions);
 
@@ -17,4 +17,4 @@ process.on("unhandledRejection", (reason: Error) => {
 process.on("warning", (...args) => client.logger.warn(...args));
 
 client.build()
-    .catch(e => client.logger.error(e));
+    .catch(error => client.logger.error(error));

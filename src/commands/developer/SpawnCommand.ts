@@ -1,13 +1,13 @@
-import { CommandContext } from "../../structures/CommandContext.js";
-import { createEmbed } from "../../utils/functions/createEmbed.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { Command } from "../../utils/decorators/Command.js";
 import { ChildProcess, spawn } from "node:child_process";
 import { Collection } from "discord.js";
 import kill from "tree-kill";
+import { BaseCommand } from "../../structures/BaseCommand.js";
+import { CommandContext } from "../../structures/CommandContext.js";
+import { Command } from "../../utils/decorators/Command.js";
+import { createEmbed } from "../../utils/functions/createEmbed.js";
 
 @Command<typeof SpawnCommand>({
-    description: "Spawn process for executing bash commands",
+    description: "Spawn process for executing bash commands.",
     devOnly: true,
     name: "spawn",
     usage: "{prefix}spawn <option>"
@@ -24,7 +24,7 @@ export class SpawnCommand extends BaseCommand {
                 void ctx.reply({ embeds: [createEmbed("error", "Please provide the process name.", true)] });
                 return;
             }
-            if (!ctx.args.length) {
+            if (ctx.args.length === 0) {
                 void ctx.reply({ embeds: [createEmbed("error", "Please provide a command to execute.", true)] });
                 return;
             }
@@ -47,13 +47,13 @@ export class SpawnCommand extends BaseCommand {
                 });
 
             process.stdout.on("data", async data => {
-                const pages = SpawnCommand.paginate(String(data), 1950);
+                const pages = SpawnCommand.paginate(String(data), 1_950);
                 for (const page of pages) {
                     await ctx.reply(`\`\`\`\n${page}\`\`\``);
                 }
             });
             process.stderr.on("data", async data => {
-                const pages = SpawnCommand.paginate(String(data), 1950);
+                const pages = SpawnCommand.paginate(String(data), 1_950);
                 for (const page of pages) {
                     await ctx.reply(`\`\`\`\n${page}\`\`\``);
                 }
@@ -87,9 +87,9 @@ export class SpawnCommand extends BaseCommand {
                 void ctx.reply({
                     embeds: [createEmbed("success", "Process has terminated.", true)]
                 });
-            } catch (err) {
+            } catch (error) {
                 void ctx.reply({
-                    embeds: [createEmbed("error", `An error occured while trying to terminate process: ${(err as Error).message}`)]
+                    embeds: [createEmbed("error", `An error occured while trying to terminate process: ${(error as Error).message}`)]
                 });
             }
         } else {
@@ -97,7 +97,7 @@ export class SpawnCommand extends BaseCommand {
         }
     }
 
-    private static paginate(text: string, limit = 2000): string[] {
+    private static paginate(text: string, limit = 2_000): string[] {
         const lines = text.trim().split("\n");
         const pages = [];
         let chunk = "";

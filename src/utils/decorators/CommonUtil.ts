@@ -1,6 +1,7 @@
-import { createCmdDecorator } from "./createCmdDecorator.js";
+import type { PermissionResolvable } from "discord.js";
+import { PermissionFlagsBits } from "discord.js";
 import { createEmbed } from "../functions/createEmbed.js";
-import { PermissionFlagsBits, PermissionResolvable } from "discord.js";
+import { createCmdDecorator } from "./createCmdDecorator.js";
 
 export function memberReqPerms(
     perms: PermissionResolvable,

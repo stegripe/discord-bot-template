@@ -1,6 +1,6 @@
+import { Message, User } from "discord.js";
 import { BaseEvent } from "../structures/BaseEvent.js";
 import { Event } from "../utils/decorators/Event.js";
-import { Message, User } from "discord.js";
 import { createEmbed } from "../utils/functions/createEmbed.js";
 
 @Event("messageCreate")
@@ -25,7 +25,7 @@ export class MessageCreateEvent extends BaseEvent {
                         )
                     ]
                 })
-                .catch(e => this.client.logger.error("PROMISE_ERR:", e));
+                .catch(error => this.client.logger.error("PROMISE_ERR:", error));
         }
     }
 

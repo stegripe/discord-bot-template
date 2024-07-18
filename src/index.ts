@@ -1,8 +1,8 @@
-import { isDev, shardingMode, shardsCount } from "./config/index.js";
-import { createLogger } from "./utils/functions/createLogger.js";
-import { ShardingManager } from "discord.js";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ShardingManager } from "discord.js";
+import { isDev, shardingMode, shardsCount } from "./config/index.js";
+import { createLogger } from "./utils/functions/createLogger.js";
 
 const log = createLogger({
     name: "ShardManager",
@@ -22,4 +22,4 @@ manager.on("shardCreate", shard => {
     shard.on("disconnect", () => log.warn("SHARD_DISCONNECTED: ", { stack: `Shard #${shard.id} has disconnected.` }))
         .on("reconnecting", () => log.info("SHARD_RECONNECTING: ", { stack: `Shard #${shard.id} is reconnecting.` }));
     if (manager.shards.size === manager.totalShards) log.info("All shards are spawned successfully.");
-}).spawn().catch(e => log.error(e));
+}).spawn().catch(error => log.error(error));

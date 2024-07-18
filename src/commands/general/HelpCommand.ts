@@ -1,12 +1,12 @@
-import { CommandContext } from "../../structures/CommandContext.js";
-import { createEmbed } from "../../utils/functions/createEmbed.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { Command } from "../../utils/decorators/Command.js";
 import { ActionRowBuilder, ApplicationCommandOptionType, Message, SelectMenuComponentOptionData, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
+import { BaseCommand } from "../../structures/BaseCommand.js";
+import { CommandContext } from "../../structures/CommandContext.js";
+import { Command } from "../../utils/decorators/Command.js";
+import { createEmbed } from "../../utils/functions/createEmbed.js";
 
 @Command<typeof HelpCommand>({
     aliases: ["h", "command", "commands", "cmd", "cmds"],
-    description: "Shows the command list or information for a specific command",
+    description: "Shows the command list or information for a specific command.",
     name: "help",
     slash: {
         options: [
@@ -27,11 +27,11 @@ export class HelpCommand extends BaseCommand {
         })
         .setFooter({
             text: `${this.client.config.prefix}help <command> to get more information for a specific command`,
-            iconURL: "https://cdn.clytage.org/images/information.png"
+            iconURL: "https://cdn.stegripe.org/images/information.png"
         });
 
     private readonly infoEmbed = createEmbed("info")
-        .setThumbnail("https://cdn.clytage.org/images/question_mark.png");
+        .setThumbnail("https://cdn.stegripe.org/images/question_mark.png");
 
     public async execute(ctx: CommandContext): Promise<Message | undefined> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
@@ -47,7 +47,7 @@ export class HelpCommand extends BaseCommand {
             this.client.commands.get(this.client.commands.aliases.get(val!)!);
         if (!val) {
             const embed = this.listEmbed
-                .setThumbnail("https://cdn.clytage.org/images/icon.jpg");
+                .setThumbnail("https://cdn.stegripe.org/images/icon.jpg");
 
             this.listEmbed.data.fields = [];
             for (const category of this.client.commands.categories.values()) {
@@ -66,12 +66,12 @@ export class HelpCommand extends BaseCommand {
             }
 
             ctx.send({ embeds: [embed] }, "editReply")
-                .catch(e => this.client.logger.error("PROMISE_ERR:", e));
+                .catch(error => this.client.logger.error("PROMISE_ERR:", error));
             return;
         }
         if (!command) {
             const matching = this.generateSelectMenu(val, ctx.author.id);
-            if (!matching.length) {
+            if (matching.length === 0) {
                 return ctx.send({
                     embeds: [createEmbed("error", "Couldn't find any matching command name.", true)]
                 }, "editReply");
@@ -97,7 +97,7 @@ export class HelpCommand extends BaseCommand {
         }
         if (ctx.isSelectMenu()) {
             const matching = this.generateSelectMenu(val, ctx.author.id);
-            if (!matching.length) {
+            if (matching.length === 0) {
                 return ctx.send({
                     embeds: [createEmbed("error", "Couldn't find any matching command name.", true)]
                 }, "editReply");
@@ -105,7 +105,7 @@ export class HelpCommand extends BaseCommand {
 
             const channel = ctx.channel;
             const msg = await channel!.messages.fetch((ctx.context as StringSelectMenuInteraction).message.id)
-                .catch(() => undefined);
+                .catch(() => {});
             if (msg !== undefined) {
                 await msg.edit({
                     components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -131,7 +131,7 @@ export class HelpCommand extends BaseCommand {
                 })
                 .addFields(
                     { name: "Name", value: `**\`${command.meta.name}\`**`, inline: false },
-                    { name: "Description", value: `${command.meta.description!}`, inline: true },
+                    { name: "Description", value: command.meta.description!, inline: true },
                     {
                         name: "Aliases",
                         value: command.meta.aliases?.length
@@ -139,11 +139,11 @@ export class HelpCommand extends BaseCommand {
                             : "None",
                         inline: false
                     },
-                    { name: "Usage", value: `**\`${command.meta.usage!.replace(/{prefix}/g, this.client.config.prefix)}\`**`, inline: true }
+                    { name: "Usage", value: `**\`${command.meta.usage!.replaceAll("{prefix}", this.client.config.prefix)}\`**`, inline: true }
                 )
                 .setFooter({
                     text: `<> = required | [] = optional ${command.meta.devOnly ? "(developer-only command)" : ""}`,
-                    iconURL: "https://cdn.clytage.org/images/information.png"
+                    iconURL: "https://cdn.stegripe.org/images/information.png"
                 })]
         }, "editReply");
     }

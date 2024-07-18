@@ -1,6 +1,6 @@
+import type { BaseCommand } from "../../structures/BaseCommand.js";
+import type { MethodDecorator } from "../../typings/index.js";
 import { createMethodDecorator } from "./createMethodDecorator.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { MethodDecorator } from "../../typings/index.js";
 
 export function createCmdDecorator(
     func: (...args: Parameters<BaseCommand["execute"]>) => Promisable<boolean | undefined>

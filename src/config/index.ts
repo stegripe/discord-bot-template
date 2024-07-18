@@ -1,6 +1,7 @@
-import { PresenceData } from "../typings/index.js";
+import type { ClientOptions } from "discord.js";
+import { ActivityType, IntentsBitField, Options } from "discord.js";
+import type { PresenceData } from "../typings/index.js";
 import { prefix } from "./env.js";
-import { ActivityType, IntentsBitField, ClientOptions, Options } from "discord.js";
 
 export const clientOptions: ClientOptions = {
     intents: [
@@ -18,7 +19,7 @@ export const clientOptions: ClientOptions = {
         ...Options.DefaultSweeperSettings,
         threads: {
             interval: 300,
-            lifetime: 10800
+            lifetime: 10_800
         }
     }
 };
@@ -32,7 +33,7 @@ export const presenceData: PresenceData = {
             type: ActivityType.Watching
         }
     ],
-    interval: 60000,
+    interval: 60_000,
     status: ["online"]
 };
 

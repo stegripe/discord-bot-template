@@ -1,8 +1,8 @@
-import { CommandContext } from "../structures/CommandContext.js";
-import { createEmbed } from "../utils/functions/createEmbed.js";
-import { BaseEvent } from "../structures/BaseEvent.js";
-import { Event } from "../utils/decorators/Event.js";
 import { Interaction, Message } from "discord.js";
+import { BaseEvent } from "../structures/BaseEvent.js";
+import { CommandContext } from "../structures/CommandContext.js";
+import { Event } from "../utils/decorators/Event.js";
+import { createEmbed } from "../utils/functions/createEmbed.js";
 
 @Event("interactionCreate")
 export class InteractionCreateEvent extends BaseEvent {

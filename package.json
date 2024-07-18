@@ -1,41 +1,35 @@
 {
-    "name": "template",
+    "name": "discord-bot-template",
     "version": "1.0.0",
-    "description": "A template to generate well-configured project base for Stegripe.",
-    "main": "dist/index.js",
-    "type": "module",
-    "scripts": {
-        "build": "npm run lint && npm run compile",
-        "compile": "tsc --build tsconfig.json",
-        "lint": "eslint . --ignore-path .gitignore --ext .ts",
-        "lint:fix": "npm run lint -- --fix",
-        "start": "node --es-module-specifier-resolution=node -r dotenv/config . | pino-pretty -t \"SYS:yyyy-MM-dd HH:mm:ss\"",
-        "start:dev": "rimraf ./dist && npm run compile && npm start"
-    },
+    "description": "A template for Stegripe Discord bot projects.",
+    "license": "AGPL-3.0",
+    "author": "Stegripe Development <support@stegripe.org>",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/stegripe/template.git"
     },
-    "author": "Stegripe <admin@stegripe.org>",
-    "license": "AGPL-3.0",
     "bugs": {
         "url": "https://github.com/stegripe/template/issues"
     },
     "homepage": "https://github.com/stegripe/template#readme",
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "build": "pnpm run lint && pnpm run compile",
+        "compile": "tsc --build tsconfig.json",
+        "lint": "eslint . --ignore-pattern .gitignore",
+        "lint:fix": "pnpm run lint --fix",
+        "start": "node --es-module-specifier-resolution=node -r dotenv/config . | pino-pretty -t \"SYS:yyyy-MM-dd HH:mm:ss\"",
+        "start:dev": "rimraf ./dist && pnpm run compile && pnpm start"
+    },
     "engines": {
         "node": ">=16.6.0",
         "npm": ">=7.0.0"
     },
-    "eslintConfig": {
-        "extends": "@clytage/eslint-config/typescript",
-        "ignorePatterns": "dist/*"
-    },
     "devDependencies": {
-        "@clytage/eslint-config": "^3.0.1",
+        "@stegripe/eslint-config": "^1.0.0",
         "@types/node": "^20.12.7",
-        "@typescript-eslint/eslint-plugin": "^7.13.1",
-        "@typescript-eslint/parser": "^7.13.1",
-        "eslint": "^8.57.0",
+        "eslint": "^9.6.0",
         "rimraf": "^6.0.0",
         "typescript": "^5.4.5"
     },

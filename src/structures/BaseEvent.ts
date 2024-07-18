@@ -1,5 +1,5 @@
-import { BotClient } from "./BotClient.js";
-import { ClientEvents } from "discord.js";
+import type { ClientEvents } from "discord.js";
+import type { BotClient } from "./BotClient.js";
 
 export abstract class BaseEvent {
     public constructor(

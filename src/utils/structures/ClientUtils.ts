@@ -1,8 +1,7 @@
-/* eslint-disable class-methods-use-this */
-import { BotClient } from "../../structures/BotClient.js";
-import { pathToFileURL } from "node:url";
 import { parse } from "node:path";
+import { pathToFileURL } from "node:url";
 import { ChannelType } from "discord.js";
+import type { BotClient } from "../../structures/BotClient.js";
 
 export class ClientUtils {
     public constructor(public readonly client: BotClient) {}

@@ -24,8 +24,8 @@ RUN pnpm prune --production
 # Get ready for production
 FROM ghcr.io/hazmi35/node:21-alpine
 
-LABEL name "template"
-LABEL maintainer "Clytage <admin@clytage.org>"
+LABEL name "discord-bot-template"
+LABEL maintainer "Stegripe Development <support@stegripe.org>"
 
 # Copy needed files
 COPY --from=build-stage /tmp/build/package.json .

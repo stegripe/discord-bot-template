@@ -1,5 +1,5 @@
-import { BaseCommand, CommandConstructor } from "../../structures/BaseCommand.js";
-import { ClassDecorator, NonAbstractConstructor } from "../../typings/index.js";
+import type { BaseCommand, CommandConstructor } from "../../structures/BaseCommand.js";
+import type { ClassDecorator, NonAbstractConstructor } from "../../typings/index.js";
 
 export function Command<T extends NonAbstractConstructor<BaseCommand> = CommandConstructor>(
     meta: BaseCommand["meta"]

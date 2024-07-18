@@ -1,3 +1,3 @@
-# @clytage/discord-bot-template
+# @stegripe/discord-bot-template
 
 A template for Stegripe Discord bot projects.

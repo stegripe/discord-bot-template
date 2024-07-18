@@ -1,7 +1,7 @@
-import { BotClient } from "../../structures/BotClient.js";
-import { Event } from "../../typings/index.js";
 import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import type { BotClient } from "../../structures/BotClient.js";
+import type { Event } from "../../typings/index.js";
 
 export class EventLoader {
     public constructor(public readonly client: BotClient) {}
@@ -24,6 +24,6 @@ export class EventLoader {
             this.client.logger.info(`${event.name as string} event has been loaded.`);
         }
 
-        this.client.logger.info("Done loading events");
+        this.client.logger.info("Done loading events.");
     }
 }

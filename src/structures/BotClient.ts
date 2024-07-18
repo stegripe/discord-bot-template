@@ -1,13 +1,13 @@
-import { CommandManager } from "../utils/structures/CommandManager.js";
-import { createLogger } from "../utils/functions/createLogger.js";
-import { ClientUtils } from "../utils/structures/ClientUtils.js";
-import { EventLoader } from "../utils/structures/EventLoader.js";
-import * as config from "../config/index.js";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Client } from "discord.js";
 import got from "got";
+import * as config from "../config/index.js";
+import { createLogger } from "../utils/functions/createLogger.js";
 import { formatMS } from "../utils/functions/formatMS.js";
+import { ClientUtils } from "../utils/structures/ClientUtils.js";
+import { CommandManager } from "../utils/structures/CommandManager.js";
+import { EventLoader } from "../utils/structures/EventLoader.js";
 
 const path = dirname(fileURLToPath(import.meta.url));
 
@@ -31,7 +31,7 @@ export class BotClient extends Client {
             void this.commands.readFromDir(resolve(path, "..", "commands"));
             this.logger.info(`Ready in ${formatMS(Date.now() - start)}.`);
 
-            this.removeListener("ready", listener);
+            this.removeAllListeners("ready");
         };
 
         this.on("ready", listener);

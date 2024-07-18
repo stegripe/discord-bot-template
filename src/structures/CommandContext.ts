@@ -1,4 +1,5 @@
-import { ButtonInteraction, Collection, CommandInteraction, CommandInteractionOptionResolver, ContextMenuCommandInteraction, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, BaseMessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannel, User, BaseInteraction, StringSelectMenuInteraction, InteractionResponse } from "discord.js";
+import type { CommandInteractionOptionResolver, Guild, GuildMember, Interaction, InteractionReplyOptions, BaseMessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannel, User, InteractionResponse } from "discord.js";
+import { ButtonInteraction, Collection, CommandInteraction, ContextMenuCommandInteraction, Message, BaseInteraction, StringSelectMenuInteraction } from "discord.js";
 
 export class CommandContext {
     public additionalArgs = new Collection<string, any>();
@@ -43,7 +44,7 @@ export class CommandContext {
             throw new Error("Interaction is already replied.");
         }
 
-        const reply = await this.send(options, isReplied ? "editReply" : "reply").catch((e: Error) => e);
+        const reply = await this.send(options, isReplied ? "editReply" : "reply").catch((error: Error) => error);
         if (reply instanceof Error) throw new Error(`Unable to reply context, because: ${reply.message}`);
 
         return reply;
@@ -92,8 +93,8 @@ export class CommandContext {
     }
 }
 
-type MessageCommandContext = CommandContext & { context: Message };
-type InteractionCommandContext = CommandContext & { context: Interaction };
-type CommandInteractionCommandContext = CommandContext & { context: CommandInteraction; options: CommandInteraction["options"] };
-type ButtonInteractionCommandContext = CommandContext & { context: ButtonInteraction; options: null };
-type SelectMenuInteractionCommandContext = CommandContext & { context: SelectMenuInteraction; options: null };
+type MessageCommandContext = CommandContext & { context: Message; };
+type InteractionCommandContext = CommandContext & { context: Interaction; };
+type CommandInteractionCommandContext = CommandContext & { context: CommandInteraction; options: CommandInteraction["options"]; };
+type ButtonInteractionCommandContext = CommandContext & { context: ButtonInteraction; options: null; };
+type SelectMenuInteractionCommandContext = CommandContext & { context: SelectMenuInteraction; options: null; };

@@ -1,19 +1,19 @@
-import { CommandContext } from "../../structures/CommandContext.js";
-import { createEmbed } from "../../utils/functions/createEmbed.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { Command } from "../../utils/decorators/Command.js";
 import { execSync } from "node:child_process";
+import { BaseCommand } from "../../structures/BaseCommand.js";
+import { CommandContext } from "../../structures/CommandContext.js";
+import { Command } from "../../utils/decorators/Command.js";
+import { createEmbed } from "../../utils/functions/createEmbed.js";
 
 @Command<typeof ExecCommand>({
     aliases: ["$", "bash", "execute"],
-    description: "Executes bash command",
+    description: "Executes bash command.",
     devOnly: true,
     name: "exec",
     usage: "{prefix}exec <bash>"
 })
 export class ExecCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<void> {
-        if (!ctx.args.length) {
+        if (ctx.args.length === 0) {
             await ctx.reply({
                 embeds: [createEmbed("error", "Please provide a bash command to execute.", true)]
             });
@@ -27,12 +27,12 @@ export class ExecCommand extends BaseCommand {
             for (const page of pages) {
                 await ctx.channel?.send(`\`\`\`\n${page}\`\`\``);
             }
-        } catch (e) {
-            await m.edit(`\`\`\`js\n${(e as Error).message}\`\`\``);
+        } catch (error) {
+            await m.edit(`\`\`\`js\n${(error as Error).message}\`\`\``);
         }
     }
 
-    private static paginate(text: string, limit = 2000): string[] {
+    private static paginate(text: string, limit = 2_000): string[] {
         const lines = text.trim().split("\n");
         const pages = [];
         let chunk = "";
