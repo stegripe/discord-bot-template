@@ -27,7 +27,7 @@ export class HelpCommand extends BaseCommand {
             iconURL: this.client.user?.displayAvatarURL()
         })
         .setFooter({
-            text: `${this.client.config.prefix}help <command> to get more information for a specific command`,
+            text: `${this.client.config.prefix}help <command> to get more information for a specific command.`,
             iconURL: "https://cdn.stegripe.org/images/information.png"
         });
 
