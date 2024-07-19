@@ -1,3 +1,4 @@
+import process from "node:process";
 import { defaultPrefix } from "./constants.js";
 
 export const enableSlashCommand = process.env.ENABLE_SLASH_COMMAND !== "no";

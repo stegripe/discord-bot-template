@@ -5,17 +5,17 @@ import { createEmbed } from "../utils/functions/createEmbed.js";
 
 @Event("messageCreate")
 export class MessageCreateEvent extends BaseEvent {
-    public execute(message: Message): void {
+    public async execute(message: Message): Promise<void> {
         if (message.author.bot || message.channel.isDMBased()) return;
 
         if (message.content.startsWith(this.client.config.prefix)) {
-            this.client.commands.handle(message);
+            await this.client.commands.handle(message);
             return;
         }
 
-        if (this.getUserFromMention(message.content)?.id === this.client.user!.id) {
-            message
-                .reply({
+        if (this.getUserFromMention(message.content)?.id === this.client.user?.id) {
+            try {
+                await message.reply({
                     embeds: [
                         createEmbed(
                             "info",
@@ -24,16 +24,18 @@ export class MessageCreateEvent extends BaseEvent {
                             }\`**`
                         )
                     ]
-                })
-                .catch(error => this.client.logger.error("PROMISE_ERR:", error));
+                });
+            } catch (error) {
+                this.client.logger.error("PROMISE_ERR:", error);
+            }
         }
     }
 
     private getUserFromMention(mention: string): User | undefined {
-        const match = (/^<@!?(?<id>\d+)>$/).exec(mention);
+        const match = (/^<@!?(?<id>\d+)>$/u).exec(mention);
         if (!match) return undefined;
 
-        const id = match.groups!.id;
+        const id = match.groups?.id ?? "";
         return this.client.users.cache.get(id);
     }
 }

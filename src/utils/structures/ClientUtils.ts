@@ -1,4 +1,5 @@
-import { parse } from "node:path";
+import { Buffer } from "node:buffer";
+import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { ChannelType } from "discord.js";
 import type { BotClient } from "../../structures/BotClient.js";
@@ -17,7 +18,7 @@ export class ClientUtils {
             const shardUsers = await this.client.shard.broadcastEval(c => c.users.cache.map(x => x.id));
 
             for (const users of shardUsers) {
-                arr = arr.concat(users);
+                arr = [...arr, ...users];
             }
         } else {
             arr = this.client.users.cache.map(x => x.id);
@@ -31,16 +32,16 @@ export class ClientUtils {
 
         if (this.client.shard) {
             const shardChannels = await this.client.shard.broadcastEval(
-                (c, t) => c.channels.cache
+                (c, ctx) => c.channels.cache
                     .filter(ch => {
-                        if (t.textOnly) {
+                        if (ctx.textOnly) {
                             return (
-                                ch.type === t.types.GuildText ||
-                                ch.type === t.types.PublicThread ||
-                                ch.type === t.types.PrivateThread
+                                ch.type === ctx.types.GuildText ||
+                                ch.type === ctx.types.PublicThread ||
+                                ch.type === ctx.types.PrivateThread
                             );
-                        } else if (t.voiceOnly) {
-                            return ch.type === t.types.GuildVoice;
+                        } else if (ctx.voiceOnly) {
+                            return ch.type === ctx.types.GuildVoice;
                         }
 
                         return true;
@@ -52,7 +53,7 @@ export class ClientUtils {
             );
 
             for (const channels of shardChannels) {
-                arr = arr.concat(channels);
+                arr = [...arr, ...channels];
             }
         } else {
             arr = this.client.channels.cache
@@ -85,13 +86,13 @@ export class ClientUtils {
         return this.client.guilds.cache.size;
     }
 
-    public async importFile<T>(path: string): Promise<T> {
-        return import(pathToFileURL(path).toString());
+    public async importFile<T>(pth: string): Promise<T> {
+        return import(pathToFileURL(pth).toString()) as Promise<T>;
     }
 
-    public async importClass<T>(path: string, ...args: any[]): Promise<T | undefined> {
-        const file = await this.importFile<Record<string, (new (...argument: any[]) => T) | undefined>>(path);
-        const name = parse(path).name;
-        return file[name] ? new file[name]!(...args as unknown[]) : undefined;
+    public async importClass<T>(pth: string, ...args: any[]): Promise<T | undefined> {
+        const file = await this.importFile<Record<string, (new (...argument: any[]) => T) | undefined>>(pth);
+        const name = path.parse(pth).name;
+        return file[name] ? new file[name](...args as unknown[]) : undefined;
     }
 }

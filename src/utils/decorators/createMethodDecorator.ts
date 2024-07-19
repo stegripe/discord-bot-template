@@ -1,4 +1,4 @@
-import type { MethodDecorator } from "../../typings/index.js";
+import type { FunctionType, MethodDecorator, Promisable } from "../../typings/index.js";
 
 export function createMethodDecorator<TC = any, Target extends FunctionType = FunctionType>(
     func: (...args: Parameters<Target>) => Promisable<boolean | undefined>
@@ -6,11 +6,11 @@ export function createMethodDecorator<TC = any, Target extends FunctionType = Fu
     return (target, _, descriptor) => {
         const originalMethod = descriptor.value as Target;
 
-        descriptor.value = async function value(...args: Parameters<Target>) {
+        descriptor.value = async function value(...args: Parameters<Target>): Promise<ReturnType<Target> | undefined> {
             const res = await func(...args);
-            if (res === false) return;
+            if (res === false) return undefined;
 
-            return originalMethod.apply(this, args);
+            return originalMethod.apply(this, args) as ReturnType<Target>;
         };
     };
 }

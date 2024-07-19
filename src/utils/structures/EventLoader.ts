@@ -1,5 +1,5 @@
-import { readdirSync } from "node:fs";
-import { resolve } from "node:path";
+import { readdir } from "node:fs/promises";
+import path from "node:path";
 import type { BotClient } from "../../structures/BotClient.js";
 import type { Event } from "../../typings/index.js";
 
@@ -9,12 +9,12 @@ export class EventLoader {
     public async readFromDir(dir: string): Promise<void> {
         this.client.logger.info(`Loading events from "${dir}"...`);
 
-        const events = readdirSync(dir);
+        const events = await readdir(dir);
         this.client.logger.info("Loading %d events...", events.length);
 
-        for (const file of events) {
+        for await (const file of events) {
             const event = await this.client.utils.importClass<Event>(
-                resolve(dir, file),
+                path.resolve(dir, file),
                 this.client
             );
 

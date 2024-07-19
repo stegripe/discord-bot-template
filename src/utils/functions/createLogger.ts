@@ -9,7 +9,7 @@ type LoggerOptions = ProcessType & {
 export const createLogger = (options: LoggerOptions): pino.Logger => pino({
     name: options.name,
     timestamp: true,
-    level: options.dev ? "debug" : "info",
+    level: options.dev === true ? "debug" : "info",
     formatters: {
         bindings: () => ({
             pid: options.type === "shard" ? `Shard #${options.shardId}` : "Manager"

@@ -20,7 +20,7 @@ export class SpawnCommand extends BaseCommand {
 
         if (option === "create") {
             const name = ctx.args.shift();
-            if (!name) {
+            if (name === undefined || name === "") {
                 void ctx.reply({ embeds: [createEmbed("error", "Please provide the process name.", true)] });
                 return;
             }
@@ -34,13 +34,13 @@ export class SpawnCommand extends BaseCommand {
             }
 
             await ctx.reply({ embeds: [createEmbed("info", `❯_ ${ctx.args.join(" ")}`)] });
-            const process = spawn(ctx.args.shift()!, ctx.args, { shell: true, windowsHide: true })
+            const process = spawn(ctx.args.shift() as unknown as string, ctx.args, { shell: true, windowsHide: true })
                 .on("spawn", () => {
                     void ctx.reply({ embeds: [createEmbed("success", `Process **\`${name}\`** has spawned.`, true)] });
                 })
-                .on("close", (code, signal) => {
+                .on("close", (code: string, signal: string) => {
                     this.processes.delete(name);
-                    void ctx.reply({ embeds: [createEmbed("warn", `Process **\`${name}\`** closed with code **\`${code!}\`**, signal **\`${signal!}\`**`)] });
+                    void ctx.reply({ embeds: [createEmbed("warn", `Process **\`${name}\`** closed with code **\`${code}\`**, signal **\`${signal}\`**`)] });
                 })
                 .on("error", err => {
                     void ctx.reply({ embeds: [createEmbed("error", `An error occured on the process **\`${name}\`**: \n\`\`\`${err.message}\`\`\``, true)] });
@@ -48,13 +48,13 @@ export class SpawnCommand extends BaseCommand {
 
             process.stdout.on("data", async data => {
                 const pages = SpawnCommand.paginate(String(data), 1_950);
-                for (const page of pages) {
+                for await (const page of pages) {
                     await ctx.reply(`\`\`\`\n${page}\`\`\``);
                 }
             });
             process.stderr.on("data", async data => {
                 const pages = SpawnCommand.paginate(String(data), 1_950);
-                for (const page of pages) {
+                for await (const page of pages) {
                     await ctx.reply(`\`\`\`\n${page}\`\`\``);
                 }
             });
@@ -62,21 +62,20 @@ export class SpawnCommand extends BaseCommand {
             this.processes.set(name, process);
         } else if (option === "terminate") {
             const name = ctx.args.shift();
-            if (!name) {
+            if (name === undefined || name === "") {
                 void ctx.reply({ embeds: [createEmbed("error", "Please provide the process name.", true)] });
                 return;
             }
-            if (!this.processes.has(name)) {
+            const process = this.processes.get(name);
+            if (process === undefined) {
                 void ctx.reply({ embeds: [createEmbed("error", "There's no process with that name.", true)] });
                 return;
             }
 
-            const process = this.processes.get(name)!;
-
             try {
-                if (process.pid) {
+                if (process.pid !== undefined) {
                     await new Promise<void>((resolve, reject) => {
-                        kill(process.pid!, "SIGTERM", err => {
+                        kill(process.pid as unknown as number, "SIGTERM", err => {
                             if (err) reject(err);
                             else resolve();
                         });

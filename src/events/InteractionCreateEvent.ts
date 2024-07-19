@@ -11,8 +11,8 @@ export class InteractionCreateEvent extends BaseEvent {
 
         const context = new CommandContext(interaction);
         if (interaction.isContextMenuCommand()) {
-            const data = interaction.options.getUser("user") ??
-                interaction.options.getMessage("message");
+            const data = interaction.options.get("user") ??
+                interaction.options.get("message");
             const cmd = this.client.commands.find(x => (
                 data instanceof Message
                     ? x.meta.contextChat === interaction.commandName
@@ -28,7 +28,7 @@ export class InteractionCreateEvent extends BaseEvent {
         if (interaction.isCommand()) {
             const cmd = this.client.commands
                 .filter(x => x.meta.slash !== undefined)
-                .find(x => x.meta.slash!.name === interaction.commandName);
+                .find(x => x.meta.slash?.name === interaction.commandName);
             if (cmd) {
                 void cmd.execute(context);
             }

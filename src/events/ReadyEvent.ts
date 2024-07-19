@@ -1,3 +1,4 @@
+import { setInterval } from "node:timers";
 import { Presence } from "discord.js";
 import { BaseEvent } from "../structures/BaseEvent.js";
 import { Event } from "../utils/decorators/Event.js";
@@ -36,25 +37,24 @@ export class ReadyEvent extends BaseEvent {
 
         return newText
             .replaceAll("{prefix}", this.client.config.prefix)
-            .replaceAll("{tag}", this.client.user!.tag);
+            .replaceAll("{tag}", this.client.user?.tag ?? "");
     }
 
-    private async setPresence(random: boolean): Promise<Presence> {
+    private async setPresence(random: boolean): Promise<Presence | undefined> {
         const activityNumber = random
             ? Math.floor(Math.random() * this.client.config.presenceData.activities.length)
             : 0;
         const statusNumber = random
             ? Math.floor(Math.random() * this.client.config.presenceData.status.length)
             : 0;
-        const activity = (
-            await Promise.all(
-                this.client.config.presenceData.activities.map(
-                    async a => Object.assign(a, { name: await this.formatString(a.name) })
-                )
+        const activities = await Promise.all(
+            this.client.config.presenceData.activities.map(
+                async a => Object.assign(a, { name: await this.formatString(a.name) })
             )
-        )[activityNumber];
+        );
+        const activity = activities[activityNumber];
 
-        return this.client.user!.setPresence({
+        return this.client.user?.setPresence({
             activities: (activity as { name: string; } | undefined) ? [activity] : [],
             status: this.client.config.presenceData.status[statusNumber]
         });

@@ -1,4 +1,5 @@
-import type { ActivityOptions, ApplicationCommandOptionData, ApplicationCommandType, ClientEvents, Guild } from "discord.js";
+import type { ActivityOptions, ApplicationCommandOptionData, ApplicationCommandType, ClientEvents, ClientPresenceStatus, Guild } from "discord.js";
+import type { CommandContext } from "../structures/CommandContext.ts";
 
 export type MessageInteractionAction = "editReply" | "followUp" | "reply";
 
@@ -63,8 +64,3 @@ export type RegisterCmdOptions<T = false> = (T extends true ? { guild?: Guild; }
     onRegistered(guild: Guild | null, type: "message" | "slash" | "user"): void;
     onError(guild: Guild | null, error: Error, type: "message" | "slash" | "user"): void;
 };
-
-declare global {
-    type Promisable<T> = Promise<T> | T;
-    type FunctionType<Args extends any[] = any[], Result = any> = (...args: Args) => Result;
-}

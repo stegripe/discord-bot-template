@@ -1,5 +1,6 @@
-import { readdirSync } from "node:fs";
-import { resolve } from "node:path";
+import { readdir } from "node:fs/promises";
+import nodePath from "node:path";
+import { setTimeout } from "node:timers";
 import type { ApplicationCommandData, Message, Snowflake, TextChannel } from "discord.js";
 import { ApplicationCommandType, Collection } from "discord.js";
 import type { BaseCommand } from "../../structures/BaseCommand.js";
@@ -18,7 +19,7 @@ export class CommandManager extends Collection<string, CommandComponent> {
     public loadComponent(category: CategoryMeta, path: string, comp: CommandComponent): void {
         comp.meta = Object.assign(comp.meta, { category: category.name, path });
 
-        if (comp.meta.aliases?.length) {
+        if (comp.meta.aliases) {
             for (const alias of comp.meta.aliases) {
                 this.aliases.set(alias, comp.meta.name);
             }
@@ -29,24 +30,24 @@ export class CommandManager extends Collection<string, CommandComponent> {
 
     public async readFromDir(dir: string): Promise<void> {
         this.client.logger.info(`Loading commands from "${dir}"...`);
-        const catFolders = readdirSync(dir);
+        const catFolders = await readdir(dir);
 
         this.client.logger.info(`Found ${catFolders.length} categories, registering...`);
 
-        for (const cf of catFolders) {
+        for await (const cf of catFolders) {
             const meta = await this.client.utils.importFile<{ default: CategoryMeta; }>(
-                resolve(dir, cf, "category.meta.js")
+                nodePath.resolve(dir, cf, "category.meta.js")
             ).then(x => x.default);
             let disabled = 0;
 
             this.client.logger.info(`Registering category "${meta.name}"...`);
             meta.cmds = [];
 
-            const files = readdirSync(resolve(dir, cf)).filter(x => x !== "category.meta.js");
+            const files = await readdir(nodePath.resolve(dir, cf)).then(paths => paths.filter(x => x !== "category.meta.js"));
 
-            for (const file of files) {
+            for await (const file of files) {
                 try {
-                    const path = resolve(dir, cf, file);
+                    const path = nodePath.resolve(dir, cf, file);
                     const command = await this.client.utils.importClass<BaseCommand>(path, this.client);
 
                     if (!command) throw new Error(`File "${file}" is not a valid command file.`);
@@ -61,18 +62,18 @@ export class CommandManager extends Collection<string, CommandComponent> {
                         });
 
                         await this.registerCmd(command, {
-                            onError: (g, e, t) => this.client.logger.error(
-                                e, "Unable to register %s to %s command for %s", command.meta.name, t, g?.id ?? "???"
+                            onError: (guild, err, cmdType) => this.client.logger.error(
+                                err, "Unable to register %s to %s command for %s", command.meta.name, cmdType, guild?.id ?? "???"
                             ),
-                            onRegistered: (g, t) => this.client.logger.info(
-                                "Registered %s to %s command for %s", command.meta.name, t, g?.id ?? "global"
+                            onRegistered: (guild, cmdType) => this.client.logger.info(
+                                "Registered %s to %s command for %s", command.meta.name, cmdType, guild?.id ?? "global"
                             )
                         });
                     }
 
                     meta.cmds.push(command.meta.name);
                     this.client.logger.info(`Command ${command.meta.name} from ${cf} category is now loaded.`);
-                    if (command.meta.disable) disabled++;
+                    if (command.meta.disable === true) disabled++;
                 } catch (error) {
                     this.client.logger.error(
                         `Error occured while loading ${file}: ${(error as Error).message}`
@@ -90,33 +91,32 @@ export class CommandManager extends Collection<string, CommandComponent> {
         }
     }
 
-    public handle(message: Message): void {
-        const args = message.content.slice(this.client.config.prefix.length).trim().split(/\s+/);
-        const cmd = args.shift()?.toLowerCase();
-        const command = this.get(cmd!) ?? this.get(this.aliases.get(cmd!)!);
+    public async handle(message: Message): Promise<void> {
+        const args = message.content.slice(this.client.config.prefix.length).trim().split(/\s+/u);
+        const cmd = args.shift()?.toLowerCase() ?? "";
+        const command = this.get(cmd) ?? this.get(this.aliases.get(cmd) as unknown as string);
 
-        if (!command || command.meta.disable) return;
+        if (!command || command.meta.disable === true) return;
         if (!this.cooldowns.has(command.meta.name)) this.cooldowns.set(command.meta.name, new Collection());
 
         const now = Date.now();
         const timestamps = this.cooldowns.get(command.meta.name);
         const cooldownAmount = (command.meta.cooldown ?? 3) * 1_000;
 
-        if (timestamps?.has(message.author.id)) {
-            const expirationTime = timestamps.get(message.author.id)! + cooldownAmount;
+        if (timestamps?.has(message.author.id) === true) {
+            const expirationTime = (timestamps.get(message.author.id) ?? 0) + cooldownAmount;
             if (now < expirationTime) {
                 const timeLeft = (expirationTime - now) / 1_000;
 
-                message.reply({
+                await message.reply({
                     embeds: [
                         createEmbed(
                             "warn",
                             `${message.author.toString()}, please wait **\`${timeLeft.toFixed(1)}\`** of cooldown time.`
                         )
                     ]
-                }).then(msg => {
-                    setTimeout(async () => msg.delete(), 3_500);
-                }).catch(error => this.client.logger.error("PROMISE_ERR:", error));
+                }).then(msg => setTimeout(async () => msg.delete(), 3_500))
+                    .catch((error: unknown) => this.client.logger.error("PROMISE_ERR:", error));
 
                 return;
             }
@@ -128,7 +128,7 @@ export class CommandManager extends Collection<string, CommandComponent> {
             if (this.client.config.devs.includes(message.author.id)) timestamps?.delete(message.author.id);
         }
 
-        if (command.meta.devOnly && !this.client.config.devs.includes(message.author.id)) return;
+        if (command.meta.devOnly === true && !this.client.config.devs.includes(message.author.id)) return;
 
         try {
             command.execute(new CommandContext(message, args));
@@ -136,37 +136,38 @@ export class CommandManager extends Collection<string, CommandComponent> {
             this.client.logger.error(error, "COMMAND_HANDLER_ERR:");
         } finally {
             this.client.logger.info(
-                `${message.author.tag} [${message.author.id}] is using ${command.meta.name} [${command.meta.category!}] command` +
-                `on #${(message.channel as TextChannel).name} [${message.channel.id}] channel in ${message.guild!.name} [${message.guild!.id}] guild.`
+                `${message.author.tag} [${message.author.id}] is using ${command.meta.name} [${command.meta.category}] command` +
+                `on #${(message.channel as TextChannel).name} [${message.channel.id}] channel in ${message.guild?.name} [${message.guild?.id}] guild.`
             );
         }
     }
 
     private async registerDiscordCmd(cmd: BaseCommand, options: RegisterCmdOptions<true>): Promise<void> {
-        const manager = options.guild ? options.guild.commands : this.client.application!.commands;
+        const manager = options.guild ? options.guild.commands : this.client.application?.commands;
 
-        if (cmd.meta.contextChat) {
-            await manager.create({
+        if ((cmd.meta.contextChat?.length ?? 0) > 0) {
+            await manager?.create({
                 name: cmd.meta.name,
                 type: ApplicationCommandType.Message
-            }).catch(error => options.onError(options.guild ?? null, error as Error, "message"));
+            }).catch((error: unknown) => options.onError(options.guild ?? null, error as Error, "message"));
         }
 
-        if (cmd.meta.contextUser) {
-            await manager.create({
+        if ((cmd.meta.contextUser?.length ?? 0) > 0) {
+            await manager?.create({
                 name: cmd.meta.name,
                 type: ApplicationCommandType.User
-            }).catch(error => options.onError(options.guild ?? null, error as Error, "user"));
+            }).catch((error: unknown) => options.onError(options.guild ?? null, error as Error, "user"));
         }
 
         if (cmd.meta.slash) {
-            await manager.create(cmd.meta.slash as ApplicationCommandData).catch(error => options.onError(options.guild ?? null, error as Error, "slash"));
+            await manager?.create(cmd.meta.slash as ApplicationCommandData)
+                .catch((error: unknown) => options.onError(options.guild ?? null, error as Error, "slash"));
         }
     }
 
     private async registerCmd(data: BaseCommand, options: RegisterCmdOptions): Promise<void> {
         if (this.client.config.isDev) {
-            for (const id of this.client.config.devGuild) {
+            for await (const id of this.client.config.devGuild) {
                 const guild = await this.client.guilds.fetch(id).catch(() => null);
                 if (!guild) {
                     options.onError(null, new Error("Invalid Guild"), "slash");

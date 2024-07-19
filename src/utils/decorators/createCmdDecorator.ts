@@ -1,5 +1,5 @@
 import type { BaseCommand } from "../../structures/BaseCommand.js";
-import type { MethodDecorator } from "../../typings/index.js";
+import type { MethodDecorator, Promisable } from "../../typings/index.js";
 import { createMethodDecorator } from "./createMethodDecorator.js";
 
 export function createCmdDecorator(

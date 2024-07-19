@@ -1,3 +1,4 @@
+import process from "node:process";
 import { clientOptions } from "./config/index.js";
 import { BotClient } from "./structures/BotClient.js";
 
@@ -16,5 +17,8 @@ process.on("unhandledRejection", (reason: Error) => {
 });
 process.on("warning", (...args) => client.logger.warn(...args));
 
-client.build()
-    .catch(error => client.logger.error(error));
+try {
+    await client.build();
+} catch (error) {
+    client.logger.error(error);
+}

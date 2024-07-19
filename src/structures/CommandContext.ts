@@ -27,7 +27,7 @@ export class CommandContext {
     }
 
     public get member(): GuildMember | null {
-        return this.guild!.members.resolve(this.author.id);
+        return this.guild?.members.resolve(this.author.id) ?? null;
     }
 
     public get options(): CommandInteractionOptionResolver<"cached"> | null {
@@ -44,7 +44,7 @@ export class CommandContext {
             throw new Error("Interaction is already replied.");
         }
 
-        const reply = await this.send(options, isReplied ? "editReply" : "reply").catch((error: Error) => error);
+        const reply = await this.send(options, isReplied ? "editReply" : "reply").catch((error: unknown) => error as Error);
         if (reply instanceof Error) throw new Error(`Unable to reply context, because: ${reply.message}`);
 
         return reply;
@@ -55,10 +55,10 @@ export class CommandContext {
             if (typeof options === "object") (options as InteractionReplyOptions).fetchReply = true;
             const msg = await (this.context as CommandInteraction)[type](options as InteractionReplyOptions | MessagePayload | string) as Message;
             const channel = this.context.channel;
-            const res = await channel!.messages.fetch(msg.id).catch(() => null);
+            const res = await channel?.messages.fetch(msg.id).catch(() => null);
             return res ?? msg;
         }
-        if ((options as InteractionReplyOptions).ephemeral) {
+        if ((options as InteractionReplyOptions).ephemeral === true) {
             throw new Error("Cannot send ephemeral message in a non-interaction context.");
         }
         return (this.context as Message).reply(options as BaseMessageOptions | MessagePayload | string);

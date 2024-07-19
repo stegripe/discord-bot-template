@@ -1,8 +1,11 @@
-import { execSync } from "node:child_process";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { BaseCommand } from "../../structures/BaseCommand.js";
 import { CommandContext } from "../../structures/CommandContext.js";
 import { Command } from "../../utils/decorators/Command.js";
 import { createEmbed } from "../../utils/functions/createEmbed.js";
+
+const execPromise = promisify(exec);
 
 @Command<typeof ExecCommand>({
     aliases: ["$", "bash", "execute"],
@@ -20,15 +23,15 @@ export class ExecCommand extends BaseCommand {
             return;
         }
 
-        const m = await ctx.reply({ content: `❯_ ${ctx.args.join(" ")}` });
+        const msg = await ctx.reply({ content: `❯_ ${ctx.args.join(" ")}` });
         try {
-            const exec = execSync(ctx.args.join(" "), { encoding: "utf-8" });
-            const pages = ExecCommand.paginate(exec);
-            for (const page of pages) {
+            const execRes = await execPromise(ctx.args.join(" "), { encoding: "utf8" });
+            const pages = ExecCommand.paginate(execRes.stdout);
+            for await (const page of pages) {
                 await ctx.channel?.send(`\`\`\`\n${page}\`\`\``);
             }
         } catch (error) {
-            await m.edit(`\`\`\`js\n${(error as Error).message}\`\`\``);
+            await msg.edit(`\`\`\`js\n${(error as Error).message}\`\`\``);
         }
     }
 

@@ -7,7 +7,7 @@ export abstract class BaseEvent {
         public readonly name: keyof ClientEvents
     ) {}
 
-    public abstract execute(...args: unknown[]): Promisable<any>;
+    public abstract execute(...args: unknown[]): any;
 }
 
 export type EventConstructor = new (...args: ConstructorParameters<typeof BaseEvent>) => BaseEvent;
