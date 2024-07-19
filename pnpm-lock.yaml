@@ -12,38 +12,38 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0
       discord.js:
-        specifier: ^14.14.1
+        specifier: ^14.15.3
         version: 14.15.3
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
       got:
-        specifier: ^14.2.1
+        specifier: ^14.4.1
         version: 14.4.1
       pino:
-        specifier: ^9.2.0
+        specifier: ^9.3.1
         version: 9.3.1
       pino-pretty:
-        specifier: ^11.0.0
+        specifier: ^11.2.1
         version: 11.2.1
       tree-kill:
         specifier: ^1.2.2
         version: 1.2.2
       tslib:
-        specifier: ^2.6.2
+        specifier: ^2.6.3
         version: 2.6.3
     devDependencies:
       '@stegripe/eslint-config':
         specifier: ^1.0.0
-        version: 1.0.0(@stylistic/eslint-plugin@2.3.0(eslint@9.7.0)(typescript@5.5.3))(eslint-config-prettier@9.1.0(eslint@9.7.0))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.16.1(eslint@9.7.0)(typescript@5.5.3))(eslint-plugin-import@2.29.1)(eslint@9.7.0))(eslint-plugin-import-x@3.0.1(eslint@9.7.0)(typescript@5.5.3))(eslint-plugin-jsdoc@48.7.0(eslint@9.7.0))(eslint-plugin-n@17.9.0(eslint@9.7.0))(eslint-plugin-promise@6.4.0(eslint@9.7.0))(eslint-plugin-tsdoc@0.3.0)(eslint-plugin-unicorn@54.0.0(eslint@9.7.0))(eslint@9.7.0)(globals@14.0.0)(typescript-eslint@7.16.1(eslint@9.7.0)(typescript@5.5.3))(typescript@5.5.3)
+        version: 1.0.0(@stylistic/eslint-plugin@2.3.0(eslint@9.7.0)(typescript@5.5.3))(eslint-config-prettier@9.1.0(eslint@9.7.0))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.16.1(eslint@9.7.0)(typescript@5.5.3))(eslint-plugin-import@2.29.1)(eslint@9.7.0))(eslint-plugin-import-x@3.0.1(eslint@9.7.0)(typescript@5.5.3))(eslint-plugin-jsdoc@48.7.0(eslint@9.7.0))(eslint-plugin-n@17.9.0(eslint@9.7.0))(eslint-plugin-promise@6.4.0(eslint@9.7.0))(eslint-plugin-tsdoc@0.3.0)(eslint-plugin-unicorn@54.0.0(eslint@9.7.0))(eslint@9.7.0)(globals@15.8.0)(typescript-eslint@7.16.1(eslint@9.7.0)(typescript@5.5.3))(typescript@5.5.3)
       '@types/node':
-        specifier: ^20.12.7
+        specifier: ^20.14.11
         version: 20.14.11
       eslint:
         specifier: ^9.6.0
         version: 9.7.0
       rimraf:
-        specifier: ^6.0.0
+        specifier: ^6.0.1
         version: 6.0.1
       typescript:
         specifier: ^5.4.5
@@ -1873,7 +1873,7 @@ snapshots:
 
   '@sindresorhus/is@6.3.1': {}
 
-  '@stegripe/eslint-config@1.0.0(@stylistic/eslint-plugin@2.3.0(eslint@9.7.0)(typescript@5.5.3))(eslint-config-prettier@9.1.0(eslint@9.7.0))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.16.1(eslint@9.7.0)(typescript@5.5.3))(eslint-plugin-import@2.29.1)(eslint@9.7.0))(eslint-plugin-import-x@3.0.1(eslint@9.7.0)(typescript@5.5.3))(eslint-plugin-jsdoc@48.7.0(eslint@9.7.0))(eslint-plugin-n@17.9.0(eslint@9.7.0))(eslint-plugin-promise@6.4.0(eslint@9.7.0))(eslint-plugin-tsdoc@0.3.0)(eslint-plugin-unicorn@54.0.0(eslint@9.7.0))(eslint@9.7.0)(globals@14.0.0)(typescript-eslint@7.16.1(eslint@9.7.0)(typescript@5.5.3))(typescript@5.5.3)':
+  '@stegripe/eslint-config@1.0.0(@stylistic/eslint-plugin@2.3.0(eslint@9.7.0)(typescript@5.5.3))(eslint-config-prettier@9.1.0(eslint@9.7.0))(eslint-import-resolver-typescript@3.6.1(@typescript-eslint/parser@7.16.1(eslint@9.7.0)(typescript@5.5.3))(eslint-plugin-import@2.29.1)(eslint@9.7.0))(eslint-plugin-import-x@3.0.1(eslint@9.7.0)(typescript@5.5.3))(eslint-plugin-jsdoc@48.7.0(eslint@9.7.0))(eslint-plugin-n@17.9.0(eslint@9.7.0))(eslint-plugin-promise@6.4.0(eslint@9.7.0))(eslint-plugin-tsdoc@0.3.0)(eslint-plugin-unicorn@54.0.0(eslint@9.7.0))(eslint@9.7.0)(globals@15.8.0)(typescript-eslint@7.16.1(eslint@9.7.0)(typescript@5.5.3))(typescript@5.5.3)':
     dependencies:
       '@stylistic/eslint-plugin': 2.3.0(eslint@9.7.0)(typescript@5.5.3)
       eslint: 9.7.0
@@ -1885,7 +1885,7 @@ snapshots:
       eslint-plugin-promise: 6.4.0(eslint@9.7.0)
       eslint-plugin-tsdoc: 0.3.0
       eslint-plugin-unicorn: 54.0.0(eslint@9.7.0)
-      globals: 14.0.0
+      globals: 15.8.0
       typescript: 5.5.3
       typescript-eslint: 7.16.1(eslint@9.7.0)(typescript@5.5.3)
 
