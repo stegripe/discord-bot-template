@@ -1,0 +1,18 @@
+x-common-general: &common-general
+  restart: unless-stopped
+  deploy:
+    resources:
+      limits:
+        memory: 512M
+
+services:
+  sate:
+    <<: *common-general
+    image: ghcr.io/stegripe/discord-bot-template:latest-dev
+    container_name: discord-bot-template-bot
+    env_file: .env
+    networks:
+      - net
+
+networks:
+  net:
