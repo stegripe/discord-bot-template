@@ -29,9 +29,9 @@
     "devDependencies": {
         "@stegripe/eslint-config": "^1.0.0",
         "@types/node": "^20.14.11",
-        "eslint": "^9.6.0",
+        "eslint": "^9.7.0",
         "rimraf": "^6.0.1",
-        "typescript": "^5.4.5"
+        "typescript": "^5.5.3"
     },
     "dependencies": {
         "date-fns": "^3.6.0",
