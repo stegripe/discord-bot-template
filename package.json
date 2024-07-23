@@ -31,7 +31,7 @@
         "@types/node": "^20.14.12",
         "eslint": "^9.7.0",
         "rimraf": "^6.0.1",
-        "typescript": "^5.5.3"
+        "typescript": "^5.5.4"
     },
     "dependencies": {
         "date-fns": "^3.6.0",
