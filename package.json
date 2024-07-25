@@ -38,8 +38,8 @@
         "discord.js": "^14.15.3",
         "dotenv": "^16.4.5",
         "got": "^14.4.2",
-        "pino": "^9.3.1",
-        "pino-pretty": "^11.2.1",
+        "pino": "^9.3.2",
+        "pino-pretty": "^11.2.2",
         "tree-kill": "^1.2.2",
         "tslib": "^2.6.3"
     }
