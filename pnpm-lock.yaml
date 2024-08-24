@@ -30,8 +30,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       tslib:
-        specifier: ^2.6.3
-        version: 2.6.3
+        specifier: ^2.7.0
+        version: 2.7.0
     devDependencies:
       '@stegripe/eslint-config':
         specifier: ^1.0.1
@@ -1603,8 +1603,8 @@ packages:
   tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
-  tslib@2.6.3:
-    resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
+  tslib@2.7.0:
+    resolution: {integrity: sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -1742,7 +1742,7 @@ snapshots:
       discord-api-types: 0.37.83
       fast-deep-equal: 3.1.3
       ts-mixer: 6.0.4
-      tslib: 2.6.3
+      tslib: 2.7.0
 
   '@discordjs/collection@1.5.3': {}
 
@@ -1761,7 +1761,7 @@ snapshots:
       '@vladfrangu/async_event_emitter': 2.4.4
       discord-api-types: 0.37.83
       magic-bytes.js: 1.10.0
-      tslib: 2.6.3
+      tslib: 2.7.0
       undici: 6.13.0
 
   '@discordjs/util@1.1.0': {}
@@ -1775,7 +1775,7 @@ snapshots:
       '@types/ws': 8.5.11
       '@vladfrangu/async_event_emitter': 2.4.4
       discord-api-types: 0.37.83
-      tslib: 2.6.3
+      tslib: 2.7.0
       ws: 8.18.0
     transitivePeerDependencies:
       - bufferutil
@@ -2498,7 +2498,7 @@ snapshots:
       minimatch: 9.0.5
       semver: 7.6.3
       stable-hash: 0.0.4
-      tslib: 2.6.3
+      tslib: 2.7.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -3437,7 +3437,7 @@ snapshots:
   synckit@0.9.1:
     dependencies:
       '@pkgr/core': 0.1.1
-      tslib: 2.6.3
+      tslib: 2.7.0
 
   tapable@2.2.1: {}
 
@@ -3468,7 +3468,7 @@ snapshots:
 
   tslib@2.6.2: {}
 
-  tslib@2.6.3: {}
+  tslib@2.7.0: {}
 
   type-check@0.4.0:
     dependencies:
