@@ -2,6 +2,9 @@
     "extends": ["@stegripe/biomejs-config"],
     "linter": {
         "rules": {
+            "performance": {
+                "noAccumulatingSpread": "off"
+            },
             "style": {
                 "useNamingConvention": {
                     "level": "error",
@@ -9,7 +12,12 @@
                         "strictCase": false
                     }
                 },
-                "noInferrableTypes": "off"
+                "noInferrableTypes": "off",
+                "useFilenamingConvention": "off"
+            },
+            "suspicious": {
+                "noExplicitAny": "off",
+                "useAwait": "off"
             }
         }
     }
