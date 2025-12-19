@@ -1,4 +1,4 @@
-import type { ColorResolvable, ShardingManagerMode, UserResolvable } from "discord.js";
+import { type ColorResolvable, type ShardingManagerMode, type UserResolvable } from "discord.js";
 
 export const shardingMode: ShardingManagerMode = "worker";
 export const shardsCount: number | "auto" = "auto";

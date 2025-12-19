@@ -1,4 +1,4 @@
-import { Interaction, Message } from "discord.js";
+import { type Interaction, Message } from "discord.js";
 import { BaseEvent } from "../structures/BaseEvent.js";
 import { CommandContext } from "../structures/CommandContext.js";
 import { Event } from "../utils/decorators/Event.js";
@@ -7,17 +7,18 @@ import { createEmbed } from "../utils/functions/createEmbed.js";
 @Event("interactionCreate")
 export class InteractionCreateEvent extends BaseEvent {
     public execute(interaction: Interaction): void {
-        if (!interaction.inGuild()) return;
+        if (!interaction.inGuild()) {
+            return;
+        }
 
         const context = new CommandContext(interaction);
         if (interaction.isContextMenuCommand()) {
-            const data = interaction.options.get("user") ??
-                interaction.options.get("message");
-            const cmd = this.client.commands.find(x => (
+            const data = interaction.options.get("user") ?? interaction.options.get("message");
+            const cmd = this.client.commands.find((x) =>
                 data instanceof Message
                     ? x.meta.contextChat === interaction.commandName
-                    : x.meta.contextUser === interaction.commandName
-            ));
+                    : x.meta.contextUser === interaction.commandName,
+            );
 
             if (cmd) {
                 context.additionalArgs.set("options", data);
@@ -27,8 +28,8 @@ export class InteractionCreateEvent extends BaseEvent {
 
         if (interaction.isCommand()) {
             const cmd = this.client.commands
-                .filter(x => x.meta.slash !== undefined)
-                .find(x => x.meta.slash?.name === interaction.commandName);
+                .filter((x) => x.meta.slash !== undefined)
+                .find((x) => x.meta.slash?.name === interaction.commandName);
             if (cmd) {
                 void cmd.execute(context);
             }
@@ -47,15 +48,15 @@ export class InteractionCreateEvent extends BaseEvent {
                         createEmbed(
                             "error",
                             "Sorry, but this interaction is only for the message author.",
-                            true
-                        )
-                    ]
+                            true,
+                        ),
+                    ],
                 });
             }
             if (cmd && user === interaction.user.id && exec) {
                 const command = this.client.commands
-                    .filter(x => x.meta.slash !== undefined)
-                    .find(x => x.meta.name === cmd);
+                    .filter((x) => x.meta.slash !== undefined)
+                    .find((x) => x.meta.name === cmd);
                 if (command) {
                     context.additionalArgs.set("values", interaction.values);
                     void command.execute(context);

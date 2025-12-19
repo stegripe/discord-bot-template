@@ -1,4 +1,4 @@
-import { Message, User } from "discord.js";
+import { type Message, type User } from "discord.js";
 import { BaseEvent } from "../structures/BaseEvent.js";
 import { Event } from "../utils/decorators/Event.js";
 import { createEmbed } from "../utils/functions/createEmbed.js";
@@ -6,7 +6,9 @@ import { createEmbed } from "../utils/functions/createEmbed.js";
 @Event("messageCreate")
 export class MessageCreateEvent extends BaseEvent {
     public async execute(message: Message): Promise<void> {
-        if (message.author.bot || message.channel.isDMBased()) return;
+        if (message.author.bot || message.channel.isDMBased()) {
+            return;
+        }
 
         if (message.content.startsWith(this.client.config.prefix)) {
             await this.client.commands.handle(message);
@@ -21,9 +23,9 @@ export class MessageCreateEvent extends BaseEvent {
                             "info",
                             `👋 **|** Hi ${message.author.toString()}, my prefix is **\`${
                                 this.client.config.prefix
-                            }\`**`
-                        )
-                    ]
+                            }\`**`,
+                        ),
+                    ],
                 });
             } catch (error) {
                 this.client.logger.error({ err: error }, "PROMISE_ERR");
@@ -32,8 +34,10 @@ export class MessageCreateEvent extends BaseEvent {
     }
 
     private getUserFromMention(mention: string): User | undefined {
-        const match = (/^<@!?(?<id>\d+)>$/u).exec(mention);
-        if (!match) return undefined;
+        const match = /^<@!?(?<id>\d+)>$/u.exec(mention);
+        if (!match) {
+            return undefined;
+        }
 
         const id = match.groups?.id ?? "";
         return this.client.users.cache.get(id);

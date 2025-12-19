@@ -1,4 +1,11 @@
-import type { ActivityOptions, ApplicationCommandOptionData, ApplicationCommandType, ClientEvents, ClientPresenceStatus, Guild } from "discord.js";
+import type {
+    ActivityOptions,
+    ApplicationCommandOptionData,
+    ApplicationCommandType,
+    ClientEvents,
+    ClientPresenceStatus,
+    Guild,
+} from "discord.js";
 import type { CommandContext } from "../structures/CommandContext.ts";
 
 export type MessageInteractionAction = "editReply" | "followUp" | "reply";
@@ -49,18 +56,23 @@ export type CategoryMeta = {
 };
 
 export type NonAbstractConstructor<R = unknown> = new (...args: any[]) => R;
-export type Constructor<R = unknown> = NonAbstractConstructor<R> | (abstract new (...args: any[]) => R);
+export type Constructor<R = unknown> =
+    | NonAbstractConstructor<R>
+    | (abstract new (
+          ...args: any[]
+      ) => R);
 
 export type MethodDecorator<T, R> = (
     target: T,
     propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: PropertyDescriptor,
 ) => R;
 export type ClassDecorator<T extends Constructor, R = unknown> = (target: T) => R;
 export type Promisable<O> = O | Promise<O>;
 export type FunctionType<A extends any[] = any[], R = any> = (...args: A) => R;
 
-export type RegisterCmdOptions<T = false> = (T extends true ? { guild?: Guild; } : {}) & {
+// biome-ignore lint/complexity/noBannedTypes: This is intentional for conditional type
+export type RegisterCmdOptions<T = false> = (T extends true ? { guild?: Guild } : {}) & {
     onRegistered(guild: Guild | null, type: "message" | "slash" | "user"): void;
     onError(guild: Guild | null, error: Error, type: "message" | "slash" | "user"): void;
 };
