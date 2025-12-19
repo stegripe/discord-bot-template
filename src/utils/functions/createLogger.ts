@@ -1,4 +1,5 @@
-import { pino } from "pino";
+import type { Logger } from "pino";
+import pino from "pino";
 
 type ProcessType = { type: "manager"; } | { type: "shard"; shardId: number; };
 type LoggerOptions = ProcessType & {
@@ -6,7 +7,7 @@ type LoggerOptions = ProcessType & {
     dev?: boolean;
 };
 
-export const createLogger = (options: LoggerOptions): pino.Logger => pino({
+export const createLogger = (options: LoggerOptions): Logger => pino({
     name: options.name,
     timestamp: true,
     level: options.dev === true ? "debug" : "info",

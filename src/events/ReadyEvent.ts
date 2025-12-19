@@ -8,7 +8,7 @@ export class ReadyEvent extends BaseEvent {
     public async execute(): Promise<void> {
         await this.doPresence();
         this.client.logger.info(await this.formatString("{tag} is ready to serve {userCount} users on {guildCount} guilds with " +
-        "{textChannelCount} text channels and {voiceChannelCount} voice channels."));
+            "{textChannelCount} text channels and {voiceChannelCount} voice channels."));
     }
 
     private async formatString(text: string): Promise<string> {
@@ -65,7 +65,7 @@ export class ReadyEvent extends BaseEvent {
             return await this.setPresence(false);
         } catch (error) {
             if ((error as Error).message !== "Shards are still being spawned.") {
-                this.client.logger.error(String(error));
+                this.client.logger.error({ err: error }, "PRESENCE_ERROR");
             }
             return undefined;
         } finally {

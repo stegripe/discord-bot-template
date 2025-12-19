@@ -48,13 +48,13 @@ export class SpawnCommand extends BaseCommand {
 
             process.stdout.on("data", async data => {
                 const pages = SpawnCommand.paginate(String(data), 1_950);
-                for await (const page of pages) {
+                for (const page of pages) {
                     await ctx.reply(`\`\`\`\n${page}\`\`\``);
                 }
             });
             process.stderr.on("data", async data => {
                 const pages = SpawnCommand.paginate(String(data), 1_950);
-                for await (const page of pages) {
+                for (const page of pages) {
                     await ctx.reply(`\`\`\`\n${page}\`\`\``);
                 }
             });

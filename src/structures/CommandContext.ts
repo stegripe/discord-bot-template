@@ -1,5 +1,5 @@
-import type { CommandInteractionOptionResolver, Guild, GuildMember, Interaction, InteractionReplyOptions, BaseMessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannel, User, InteractionResponse } from "discord.js";
-import { ButtonInteraction, Collection, CommandInteraction, ContextMenuCommandInteraction, Message, BaseInteraction, StringSelectMenuInteraction } from "discord.js";
+import type { CommandInteractionOptionResolver, Guild, GuildMember, Interaction, InteractionReplyOptions, BaseMessageOptions, MessagePayload, TextBasedChannel, User, InteractionResponse, InteractionEditReplyOptions } from "discord.js";
+import { ButtonInteraction, Collection, CommandInteraction, ContextMenuCommandInteraction, Message, BaseInteraction, StringSelectMenuInteraction, ChatInputCommandInteraction } from "discord.js";
 
 export class CommandContext {
     public additionalArgs = new Collection<string, any>();
@@ -31,7 +31,7 @@ export class CommandContext {
     }
 
     public get options(): CommandInteractionOptionResolver<"cached"> | null {
-        return this.isCommand() ? this.context.options as CommandInteractionOptionResolver : null;
+        return this.isChatInputCommand() ? this.context.options as unknown as CommandInteractionOptionResolver<"cached"> : null;
     }
 
     public async deferReply(): Promise<InteractionResponse | undefined> {
@@ -52,8 +52,25 @@ export class CommandContext {
 
     public async send(options: BaseMessageOptions | InteractionReplyOptions | MessagePayload | string, type: "editReply" | "followUp" | "reply"): Promise<Message> {
         if (this.isInteraction()) {
-            if (typeof options === "object") (options as InteractionReplyOptions).fetchReply = true;
-            const msg = await (this.context as CommandInteraction)[type](options as InteractionReplyOptions | MessagePayload | string) as Message;
+            const interaction = this.context as CommandInteraction;
+            let msg: Message;
+
+            if (typeof options === "object" && !("body" in options)) {
+                (options as InteractionReplyOptions).fetchReply = true;
+            }
+
+            switch (type) {
+                case "editReply":
+                    msg = await interaction.editReply(options as InteractionEditReplyOptions | MessagePayload | string);
+                    break;
+                case "followUp":
+                    msg = await interaction.followUp(options as InteractionReplyOptions & { fetchReply: true; });
+                    break;
+                default:
+                    msg = await interaction.reply(options as InteractionReplyOptions & { fetchReply: true; });
+                    break;
+            }
+
             const channel = this.context.channel;
             const res = await channel?.messages.fetch(msg.id).catch(() => null);
             return res ?? msg;
@@ -84,6 +101,10 @@ export class CommandContext {
         return this.context instanceof CommandInteraction || this.context instanceof ContextMenuCommandInteraction;
     }
 
+    public isChatInputCommand(): this is ChatInputCommandInteractionContext {
+        return this.context instanceof ChatInputCommandInteraction;
+    }
+
     public isButton(): this is ButtonInteractionCommandContext {
         return this.context instanceof ButtonInteraction;
     }
@@ -95,6 +116,7 @@ export class CommandContext {
 
 type MessageCommandContext = CommandContext & { context: Message; };
 type InteractionCommandContext = CommandContext & { context: Interaction; };
-type CommandInteractionCommandContext = CommandContext & { context: CommandInteraction; options: CommandInteraction["options"]; };
+type CommandInteractionCommandContext = CommandContext & { context: CommandInteraction; };
+type ChatInputCommandInteractionContext = CommandContext & { context: ChatInputCommandInteraction; options: ChatInputCommandInteraction["options"]; };
 type ButtonInteractionCommandContext = CommandContext & { context: ButtonInteraction; options: null; };
-type SelectMenuInteractionCommandContext = CommandContext & { context: SelectMenuInteraction; options: null; };
+type SelectMenuInteractionCommandContext = CommandContext & { context: StringSelectMenuInteraction; options: null; };

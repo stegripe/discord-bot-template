@@ -34,7 +34,7 @@ export class CommandManager extends Collection<string, CommandComponent> {
 
         this.client.logger.info(`Found ${catFolders.length} categories, registering...`);
 
-        for await (const cf of catFolders) {
+        for (const cf of catFolders) {
             const meta = await this.client.utils.importFile<{ default: CategoryMeta; }>(
                 nodePath.resolve(dir, cf, "category.meta.js")
             ).then(x => x.default);
@@ -45,7 +45,7 @@ export class CommandManager extends Collection<string, CommandComponent> {
 
             const files = await readdir(nodePath.resolve(dir, cf)).then(paths => paths.filter(x => x !== "category.meta.js"));
 
-            for await (const file of files) {
+            for (const file of files) {
                 try {
                     const path = nodePath.resolve(dir, cf, file);
                     const command = await this.client.utils.importClass<BaseCommand>(path, this.client);
@@ -116,7 +116,7 @@ export class CommandManager extends Collection<string, CommandComponent> {
                         )
                     ]
                 }).then(msg => setTimeout(async () => msg.delete(), 3_500))
-                    .catch((error: unknown) => this.client.logger.error("PROMISE_ERR:", error));
+                    .catch((error: unknown) => this.client.logger.error({ err: error }, "PROMISE_ERR"));
 
                 return;
             }
@@ -167,7 +167,7 @@ export class CommandManager extends Collection<string, CommandComponent> {
 
     private async registerCmd(data: BaseCommand, options: RegisterCmdOptions): Promise<void> {
         if (this.client.config.isDev) {
-            for await (const id of this.client.config.devGuild) {
+            for (const id of this.client.config.devGuild) {
                 const guild = await this.client.guilds.fetch(id).catch(() => null);
                 if (!guild) {
                     options.onError(null, new Error("Invalid Guild"), "slash");

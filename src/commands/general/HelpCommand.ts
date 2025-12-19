@@ -67,7 +67,7 @@ export class HelpCommand extends BaseCommand {
             try {
                 await ctx.send({ embeds: [embed] }, "editReply");
             } catch (error) {
-                this.client.logger.error("PROMISE_ERR:", error);
+                this.client.logger.error({ err: error }, "PROMISE_ERR");
             }
 
             return;

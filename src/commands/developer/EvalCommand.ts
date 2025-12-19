@@ -58,7 +58,7 @@ export class EvalCommand extends BaseCommand {
                     embeds: [embed]
                 });
             } catch (error) {
-                this.client.logger.error("PROMISE_ERR:", error);
+                this.client.logger.error({ err: error }, "PROMISE_ERR");
             }
         } catch (error_) {
             const cleaned = this.clean(String(error_));
@@ -73,7 +73,7 @@ export class EvalCommand extends BaseCommand {
                     embeds: [embed]
                 });
             } catch (error__) {
-                this.client.logger.error("PROMISE_ERR:", error__);
+                this.client.logger.error({ err: error__ }, "PROMISE_ERR");
             }
         }
     }
