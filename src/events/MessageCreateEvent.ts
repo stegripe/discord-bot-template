@@ -26,7 +26,7 @@ export class MessageCreateEvent extends BaseEvent {
                     ]
                 });
             } catch (error) {
-                this.client.logger.error("PROMISE_ERR:", error);
+                this.client.logger.error({ err: error }, "PROMISE_ERR");
             }
         }
     }

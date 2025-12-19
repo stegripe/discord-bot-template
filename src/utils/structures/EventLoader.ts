@@ -12,7 +12,7 @@ export class EventLoader {
         const events = await readdir(dir);
         this.client.logger.info("Loading %d events...", events.length);
 
-        for await (const file of events) {
+        for (const file of events) {
             const event = await this.client.utils.importClass<Event>(
                 path.resolve(dir, file),
                 this.client

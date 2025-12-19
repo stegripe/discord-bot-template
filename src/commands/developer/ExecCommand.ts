@@ -1,5 +1,6 @@
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import type { TextChannel, DMChannel, NewsChannel, ThreadChannel } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand.js";
 import { CommandContext } from "../../structures/CommandContext.js";
 import { Command } from "../../utils/decorators/Command.js";
@@ -27,8 +28,9 @@ export class ExecCommand extends BaseCommand {
         try {
             const execRes = await execPromise(ctx.args.join(" "), { encoding: "utf8" });
             const pages = ExecCommand.paginate(execRes.stdout);
-            for await (const page of pages) {
-                await ctx.channel?.send(`\`\`\`\n${page}\`\`\``);
+            const channel = ctx.channel as DMChannel | NewsChannel | TextChannel | ThreadChannel | null;
+            for (const page of pages) {
+                await channel?.send(`\`\`\`\n${page}\`\`\``);
             }
         } catch (error) {
             await msg.edit(`\`\`\`js\n${(error as Error).message}\`\`\``);
