@@ -1,5 +1,5 @@
 import { setInterval } from "node:timers";
-import { Presence } from "discord.js";
+import { type Presence } from "discord.js";
 import { BaseEvent } from "../structures/BaseEvent.js";
 import { Event } from "../utils/decorators/Event.js";
 
@@ -7,8 +7,12 @@ import { Event } from "../utils/decorators/Event.js";
 export class ReadyEvent extends BaseEvent {
     public async execute(): Promise<void> {
         await this.doPresence();
-        this.client.logger.info(await this.formatString("{tag} is ready to serve {userCount} users on {guildCount} guilds with " +
-            "{textChannelCount} text channels and {voiceChannelCount} voice channels."));
+        this.client.logger.info(
+            await this.formatString(
+                "{tag} is ready to serve {userCount} users on {guildCount} guilds with " +
+                    "{textChannelCount} text channels and {voiceChannelCount} voice channels.",
+            ),
+        );
     }
 
     private async formatString(text: string): Promise<string> {
@@ -48,15 +52,15 @@ export class ReadyEvent extends BaseEvent {
             ? Math.floor(Math.random() * this.client.config.presenceData.status.length)
             : 0;
         const activities = await Promise.all(
-            this.client.config.presenceData.activities.map(
-                async a => Object.assign(a, { name: await this.formatString(a.name) })
-            )
+            this.client.config.presenceData.activities.map(async (a) =>
+                Object.assign(a, { name: await this.formatString(a.name) }),
+            ),
         );
         const activity = activities[activityNumber];
 
         return this.client.user?.setPresence({
-            activities: (activity as { name: string; } | undefined) ? [activity] : [],
-            status: this.client.config.presenceData.status[statusNumber]
+            activities: (activity as { name: string } | undefined) ? [activity] : [],
+            status: this.client.config.presenceData.status[statusNumber],
         });
     }
 
@@ -69,7 +73,10 @@ export class ReadyEvent extends BaseEvent {
             }
             return undefined;
         } finally {
-            setInterval(async () => this.setPresence(true), this.client.config.presenceData.interval);
+            setInterval(
+                async () => this.setPresence(true),
+                this.client.config.presenceData.interval,
+            );
         }
     }
 }

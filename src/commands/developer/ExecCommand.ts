@@ -1,25 +1,28 @@
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import type { TextChannel, DMChannel, NewsChannel, ThreadChannel } from "discord.js";
+import { type DMChannel, type NewsChannel, type TextChannel, type ThreadChannel } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand.js";
-import { CommandContext } from "../../structures/CommandContext.js";
+import { type CommandContext } from "../../structures/CommandContext.js";
 import { Command } from "../../utils/decorators/Command.js";
 import { createEmbed } from "../../utils/functions/createEmbed.js";
 
-const execPromise = promisify(exec);
+const execPromise: (
+    command: string,
+    options: { encoding: BufferEncoding },
+) => Promise<{ stdout: string; stderr: string }> = promisify(exec);
 
 @Command<typeof ExecCommand>({
     aliases: ["$", "bash", "execute"],
     description: "Executes bash command.",
     devOnly: true,
     name: "exec",
-    usage: "{prefix}exec <bash>"
+    usage: "{prefix}exec <bash>",
 })
 export class ExecCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<void> {
         if (ctx.args.length === 0) {
             await ctx.reply({
-                embeds: [createEmbed("error", "Please provide a bash command to execute.", true)]
+                embeds: [createEmbed("error", "Please provide a bash command to execute.", true)],
             });
             return;
         }
@@ -28,7 +31,12 @@ export class ExecCommand extends BaseCommand {
         try {
             const execRes = await execPromise(ctx.args.join(" "), { encoding: "utf8" });
             const pages = ExecCommand.paginate(execRes.stdout);
-            const channel = ctx.channel as DMChannel | NewsChannel | TextChannel | ThreadChannel | null;
+            const channel = ctx.channel as
+                | DMChannel
+                | NewsChannel
+                | TextChannel
+                | ThreadChannel
+                | null;
             for (const page of pages) {
                 await channel?.send(`\`\`\`\n${page}\`\`\``);
             }
@@ -37,7 +45,7 @@ export class ExecCommand extends BaseCommand {
         }
     }
 
-    private static paginate(text: string, limit = 2_000): string[] {
+    private static paginate(text: string, limit: number = 2_000): string[] {
         const lines = text.trim().split("\n");
         const pages = [];
         let chunk = "";

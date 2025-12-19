@@ -1,10 +1,10 @@
-import type { ClientEvents } from "discord.js";
-import type { BotClient } from "./BotClient.js";
+import { type ClientEvents } from "discord.js";
+import { type BotClient } from "./BotClient.js";
 
 export abstract class BaseEvent {
     public constructor(
         public readonly client: BotClient,
-        public readonly name: keyof ClientEvents
+        public readonly name: keyof ClientEvents,
     ) {}
 
     public abstract execute(...args: unknown[]): any;

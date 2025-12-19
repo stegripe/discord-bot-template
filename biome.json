@@ -1,0 +1,16 @@
+{
+    "extends": ["@stegripe/biomejs-config"],
+    "linter": {
+        "rules": {
+            "style": {
+                "useNamingConvention": {
+                    "level": "error",
+                    "options": {
+                        "strictCase": false
+                    }
+                },
+                "noInferrableTypes": "off"
+            }
+        }
+    }
+}

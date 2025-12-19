@@ -2,12 +2,12 @@ import process from "node:process";
 import { clientOptions } from "./config/index.js";
 import { BotClient } from "./structures/BotClient.js";
 
-const client = new BotClient(clientOptions);
+const client: BotClient = new BotClient(clientOptions);
 
-process.on("exit", code => {
+process.on("exit", (code) => {
     client.logger.info(`NodeJS process exited with code ${code}`);
 });
-process.on("uncaughtException", err => {
+process.on("uncaughtException", (err) => {
     client.logger.error({ err }, "UNCAUGHT_EXCEPTION");
     client.logger.warn("Uncaught Exception detected, trying to restart...");
     process.exit(1);

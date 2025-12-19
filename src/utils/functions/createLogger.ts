@@ -1,19 +1,19 @@
-import type { Logger } from "pino";
-import pino from "pino";
+import pino, { type Logger } from "pino";
 
-type ProcessType = { type: "manager"; } | { type: "shard"; shardId: number; };
+type ProcessType = { type: "manager" } | { type: "shard"; shardId: number };
 type LoggerOptions = ProcessType & {
     name: string;
     dev?: boolean;
 };
 
-export const createLogger = (options: LoggerOptions): Logger => pino({
-    name: options.name,
-    timestamp: true,
-    level: options.dev === true ? "debug" : "info",
-    formatters: {
-        bindings: () => ({
-            pid: options.type === "shard" ? `Shard #${options.shardId}` : "Manager"
-        })
-    }
-});
+export const createLogger = (options: LoggerOptions): Logger =>
+    pino({
+        name: options.name,
+        timestamp: true,
+        level: options.dev === true ? "debug" : "info",
+        formatters: {
+            bindings: () => ({
+                pid: options.type === "shard" ? `Shard #${options.shardId}` : "Manager",
+            }),
+        },
+    });
