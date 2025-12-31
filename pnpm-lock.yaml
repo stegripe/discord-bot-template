@@ -18,8 +18,8 @@ importers:
         specifier: ^17.2.3
         version: 17.2.3
       got:
-        specifier: ^14.6.5
-        version: 14.6.5
+        specifier: ^14.6.6
+        version: 14.6.6
       pino:
         specifier: ^10.1.0
         version: 10.1.0
@@ -245,8 +245,8 @@ packages:
     resolution: {integrity: sha512-tvZgpqk6fz4BaNZ66ZsRaZnbHvP/jG3uKJvAZOwEVUL4RTA5nJeeLYfyN9/VA8NX/V3IBG+hkeuGpKjvELkVhA==}
     engines: {node: 20 || >=22}
 
-  got@14.6.5:
-    resolution: {integrity: sha512-Su87c0NNeg97de1sO02gy9I8EmE7DCJ1gzcFLcgGpYeq2PnLg4xz73MWrp6HjqbSsjb6Glf4UBDW6JNyZA6uSg==}
+  got@14.6.6:
+    resolution: {integrity: sha512-QLV1qeYSo5l13mQzWgP/y0LbMr5Plr5fJilgAIwgnwseproEbtNym8xpLsDzeZ6MWXgNE6kdWGBjdh3zT/Qerg==}
     engines: {node: '>=20'}
 
   help-me@5.0.0:
@@ -627,7 +627,7 @@ snapshots:
       minipass: 7.1.2
       path-scurry: 2.0.1
 
-  got@14.6.5:
+  got@14.6.6:
     dependencies:
       '@sindresorhus/is': 7.1.1
       byte-counter: 0.1.0
