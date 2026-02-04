@@ -6,7 +6,7 @@ x-common-general: &common-general
         memory: 512M
 
 services:
-  sate:
+  discord-bot-template:
     <<: *common-general
     image: ghcr.io/stegripe/discord-bot-template:latest-dev
     container_name: discord-bot-template-bot
