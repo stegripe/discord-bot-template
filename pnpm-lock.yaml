@@ -15,8 +15,8 @@ importers:
         specifier: ^14.25.1
         version: 14.25.1
       dotenv:
-        specifier: ^17.2.3
-        version: 17.2.3
+        specifier: ^17.2.4
+        version: 17.2.4
       got:
         specifier: ^14.6.6
         version: 14.6.6
@@ -40,8 +40,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       '@types/node':
-        specifier: ^24.10.10
-        version: 24.10.10
+        specifier: ^24.10.11
+        version: 24.10.11
       rimraf:
         specifier: ^6.1.2
         version: 6.1.2
@@ -175,8 +175,8 @@ packages:
   '@types/http-cache-semantics@4.0.4':
     resolution: {integrity: sha512-1m0bIFVc7eJWyve9S0RnuRgcQqF/Xd5QsUZAZeQFr1Q3/p9JWoQQEqmVy+DPTNpGXwhgIetAoYF8JSc33q29QA==}
 
-  '@types/node@24.10.10':
-    resolution: {integrity: sha512-+0/4J266CBGPUq/ELg7QUHhN25WYjE0wYTPSQJn1xeu8DOlIOPxXxrNGiLmfAWl7HMMgWFWXpt9IDjMWrF5Iow==}
+  '@types/node@24.10.11':
+    resolution: {integrity: sha512-/Af7O8r1frCVgOz0I62jWUtMohJ0/ZQU/ZoketltOJPZpnb17yoNc9BSoVuV9qlaIXJiPNOpsfq4ByFajSArNQ==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -221,8 +221,8 @@ packages:
     resolution: {integrity: sha512-2l0gsPOLPs5t6GFZfQZKnL1OJNYFcuC/ETWsW4VtKVD/tg4ICa9x+jb9bkPffkMdRpRpuUaO/fKkHCBeiCKh8g==}
     engines: {node: '>=18'}
 
-  dotenv@17.2.3:
-    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+  dotenv@17.2.4:
+    resolution: {integrity: sha512-mudtfb4zRB4bVvdj0xRo+e6duH1csJRM8IukBqfTRvHotn9+LBXB8ynAidP9zHqoRC/fsllXgk4kCKlR21fIhw==}
     engines: {node: '>=12'}
 
   end-of-stream@1.4.5:
@@ -547,13 +547,13 @@ snapshots:
 
   '@types/http-cache-semantics@4.0.4': {}
 
-  '@types/node@24.10.10':
+  '@types/node@24.10.11':
     dependencies:
       undici-types: 7.16.0
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 24.10.10
+      '@types/node': 24.10.11
 
   '@vladfrangu/async_event_emitter@2.4.7': {}
 
@@ -604,7 +604,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  dotenv@17.2.3: {}
+  dotenv@17.2.4: {}
 
   end-of-stream@1.4.5:
     dependencies:
