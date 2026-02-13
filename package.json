@@ -27,7 +27,7 @@
         "npm": ">=7.0.0"
     },
     "devDependencies": {
-        "@biomejs/biome": "^2.3.14",
+        "@biomejs/biome": "^2.3.15",
         "@stegripe/biomejs-config": "^1.1.0",
         "@types/node": "^24.10.13",
         "rimraf": "^6.1.2",
@@ -36,7 +36,7 @@
     "dependencies": {
         "date-fns": "^4.1.0",
         "discord.js": "^14.25.1",
-        "dotenv": "^17.2.4",
+        "dotenv": "^17.3.1",
         "got": "^14.6.6",
         "pino": "^10.3.1",
         "pino-pretty": "^13.1.3",
