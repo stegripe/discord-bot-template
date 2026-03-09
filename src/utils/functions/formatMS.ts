@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/filename-case */
 import { formatDuration, intervalToDuration } from "date-fns";
 
 export function formatMS(ms: number): string {

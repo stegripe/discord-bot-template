@@ -1,240 +1,128 @@
-import { Buffer } from "node:buffer";
-import {
-    ActionRowBuilder,
-    ApplicationCommandOptionType,
-    type Message,
-    type SelectMenuComponentOptionData,
-    StringSelectMenuBuilder,
-    type StringSelectMenuInteraction,
-    type TextBasedChannel,
-} from "discord.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { type CommandContext } from "../../structures/CommandContext.js";
-import { Command } from "../../utils/decorators/Command.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { type Command } from "@sapphire/framework";
+import { type CommandContext, ContextCommand } from "@stegripe/command-context";
+import { PermissionFlagsBits, type SlashCommandBuilder } from "discord.js";
 import { createEmbed } from "../../utils/functions/createEmbed.js";
 
-@Command<typeof HelpCommand>({
+@ApplyOptions<Command.Options>({
+    name: "help",
     aliases: ["h", "command", "commands", "cmd", "cmds"],
     description: "Shows the command list or information for a specific command.",
-    name: "help",
-    slash: {
-        options: [
-            {
-                type: ApplicationCommandOptionType.String,
-                name: "command",
-                description: "Command name to view a specific information about the command",
-            },
-        ],
+    requiredClientPermissions: [
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
+    ],
+    chatInputCommand(
+        builder: Parameters<NonNullable<Command.Options["chatInputCommand"]>>[0],
+        opts: Parameters<NonNullable<Command.Options["chatInputCommand"]>>[1],
+    ): SlashCommandBuilder {
+        return builder
+            .setName(opts.name ?? "help")
+            .setDescription(
+                opts.description ?? "Shows the command list or information for a specific command.",
+            )
+            .addStringOption((option) =>
+                option
+                    .setName("command")
+                    .setDescription("Command name to view specific information")
+                    .setRequired(false),
+            ) as SlashCommandBuilder;
     },
-    usage: "{prefix}help [command]",
 })
-export class HelpCommand extends BaseCommand {
-    private readonly listEmbed = createEmbed("info")
-        .setAuthor({
-            name: `${this.client.user?.username} - Command List`,
-            iconURL: this.client.user?.displayAvatarURL(),
-        })
-        .setFooter({
-            text: `${this.client.config.prefix}help <command> to get more information for a specific command.`,
+export class HelpCommand extends ContextCommand {
+    public async contextRun(ctx: CommandContext): Promise<void> {
+        if (ctx.isCommandInteraction() && !ctx.deferred) {
+            await ctx.deferReply();
+        }
+
+        let commandName: string | undefined;
+        if (ctx.isChatInputInteractionContext()) {
+            commandName = ctx.options.getString("command") ?? undefined;
+        } else if (ctx.isMessageContext()) {
+            commandName = (await ctx.args?.pickResult("string"))?.unwrapOr(undefined);
+        }
+
+        const commands = this.store;
+
+        if (commandName) {
+            const command =
+                commands.get(commandName) ??
+                commands.find((cmd) => cmd.aliases.includes(commandName));
+
+            if (!command) {
+                await ctx.reply({
+                    embeds: [createEmbed("error", "Command not found.", true)],
+                });
+                return;
+            }
+
+            const embed = createEmbed("info")
+                .setAuthor({
+                    name: `${this.container.client.user?.username} - Information: ${command.name}`,
+                    iconURL: this.container.client.user?.displayAvatarURL(),
+                })
+                .addFields(
+                    { name: "Name", value: `\`${command.name}\``, inline: true },
+                    {
+                        name: "Description",
+                        value: command.description || "No description.",
+                        inline: true,
+                    },
+                    {
+                        name: "Aliases",
+                        value:
+                            command.aliases.length > 0
+                                ? command.aliases.map((a) => `\`${a}\``).join(", ")
+                                : "None",
+                        inline: false,
+                    },
+                    {
+                        name: "Category",
+                        value: command.fullCategory.join(" > ") || "Uncategorized",
+                        inline: true,
+                    },
+                )
+                .setFooter({
+                    text: `${this.container.config.prefix}help [command]`,
+                    iconURL: "https://cdn.stegripe.org/images/information.png",
+                });
+
+            await ctx.reply({ embeds: [embed] });
+            return;
+        }
+
+        const isDev = this.container.config.devs.includes(ctx.author.id);
+        const categories = new Map<string, Command[]>();
+
+        for (const command of commands.values()) {
+            const category = command.fullCategory[0] || "uncategorized";
+            if (!isDev && category.toLowerCase() === "developer") {
+                continue;
+            }
+            if (!categories.has(category)) {
+                categories.set(category, []);
+            }
+            categories.get(category)?.push(command);
+        }
+
+        const embed = createEmbed("info").setAuthor({
+            name: `${this.container.client.user?.username} - Command List`,
+            iconURL: this.container.client.user?.displayAvatarURL(),
+        });
+
+        for (const [category, cmds] of categories) {
+            embed.addFields({
+                name: `**${category.toUpperCase()}**`,
+                value: cmds.map((c) => `\`${c.name}\``).join(", "),
+            });
+        }
+
+        embed.setFooter({
+            text: `${this.container.config.prefix}help <command> for more information.`,
             iconURL: "https://cdn.stegripe.org/images/information.png",
         });
 
-    private readonly infoEmbed = createEmbed("info").setThumbnail(
-        "https://cdn.stegripe.org/images/question_mark.png",
-    );
-
-    public async execute(ctx: CommandContext): Promise<Message | undefined> {
-        if (ctx.isInteraction() && !ctx.deferred) {
-            await ctx.deferReply();
-        }
-        this.infoEmbed.data.fields = [];
-        const val =
-            (ctx.args[0] as string | undefined) ??
-            ctx.options?.getString("command") ??
-            (ctx.additionalArgs.get("values") === undefined
-                ? null
-                : (ctx.additionalArgs.get("values") as string[])[0]);
-        if (val === null) {
-            const embed = this.listEmbed.setThumbnail("https://cdn.stegripe.org/images/icon.jpg");
-
-            this.listEmbed.data.fields = [];
-            for (const category of this.client.commands.categories.values()) {
-                const isDev = this.client.config.devs.includes(ctx.author.id);
-                const cmds = category.cmds.reduce<string[]>((pr, cu) => {
-                    const cmd = this.client.commands.get(cu);
-                    if (!isDev && (cmd?.meta.devOnly ?? false)) {
-                        return pr;
-                    }
-
-                    return [...pr, `\`${cmd?.meta.name}\``];
-                }, []);
-
-                if (cmds.length === 0) {
-                    continue;
-                }
-                if (category.hide && !isDev) {
-                    continue;
-                }
-
-                embed.addFields({ name: `**${category.name}**`, value: cmds.join(", ") });
-            }
-
-            try {
-                await ctx.send({ embeds: [embed] }, "editReply");
-            } catch (error) {
-                this.client.logger.error({ err: error }, "PROMISE_ERR");
-            }
-
-            return;
-        }
-
-        const command =
-            this.client.commands.get(val) ??
-            this.client.commands.get(this.client.commands.aliases.get(val) as unknown as string);
-
-        if (!command) {
-            const matching = this.generateSelectMenu(val, ctx.author.id);
-            if (matching.length === 0) {
-                await ctx.send(
-                    {
-                        embeds: [
-                            createEmbed("error", "Couldn't find any matching command name.", true),
-                        ],
-                    },
-                    "editReply",
-                );
-
-                return;
-            }
-
-            await ctx.send(
-                {
-                    components: [
-                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-                            new StringSelectMenuBuilder()
-                                .setMinValues(1)
-                                .setMaxValues(1)
-                                .setCustomId(
-                                    Buffer.from(`${ctx.author.id}_${this.meta.name}`).toString(
-                                        "base64",
-                                    ),
-                                )
-                                .addOptions(matching)
-                                .setPlaceholder("Please select the command"),
-                        ),
-                    ],
-                    embeds: [
-                        createEmbed(
-                            "error",
-                            "Couldn't find any matching command name, did you mean this?",
-                            true,
-                        ),
-                    ],
-                },
-                "editReply",
-            );
-
-            return;
-        }
-        if (ctx.isSelectMenu()) {
-            const matching = this.generateSelectMenu(val, ctx.author.id);
-            if (matching.length === 0) {
-                await ctx.send(
-                    {
-                        embeds: [
-                            createEmbed("error", "Couldn't find any matching command name.", true),
-                        ],
-                    },
-                    "editReply",
-                );
-
-                return;
-            }
-
-            const channel = ctx.channel as unknown as TextBasedChannel;
-            const msg = await channel.messages
-                .fetch((ctx.context as StringSelectMenuInteraction).message.id)
-                .catch(() => void 0);
-            if (msg !== undefined) {
-                await msg.edit({
-                    components: [
-                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-                            new StringSelectMenuBuilder()
-                                .setMinValues(1)
-                                .setMaxValues(1)
-                                .setCustomId(
-                                    Buffer.from(`${ctx.author.id}_${this.meta.name}`).toString(
-                                        "base64",
-                                    ),
-                                )
-                                .addOptions(matching)
-                                .setPlaceholder("Please select the command")
-                                .setDisabled(true),
-                        ),
-                    ],
-                });
-            }
-        }
-
-        await ctx.send(
-            {
-                embeds: [
-                    this.infoEmbed
-                        .setAuthor({
-                            name: `${this.client.user?.username} - Information about ${command.meta.name} command`,
-                            iconURL: this.client.user?.displayAvatarURL(),
-                        })
-                        .addFields(
-                            { name: "Name", value: `**\`${command.meta.name}\`**`, inline: false },
-                            {
-                                name: "Description",
-                                value: command.meta.description ?? "",
-                                inline: true,
-                            },
-                            {
-                                name: "Aliases",
-                                value:
-                                    command.meta.aliases && command.meta.aliases.length > 0
-                                        ? command.meta.aliases.map((c) => `**\`${c}\`**`).join(", ")
-                                        : "None",
-                                inline: false,
-                            },
-                            {
-                                name: "Usage",
-                                value: `**\`${(command.meta.usage ?? "").replaceAll("{prefix}", this.client.config.prefix)}\`**`,
-                                inline: true,
-                            },
-                        )
-                        .setFooter({
-                            text: `<> = required | [] = optional ${command.meta.devOnly === true ? "(developer-only command)" : ""}`,
-                            iconURL: "https://cdn.stegripe.org/images/information.png",
-                        }),
-                ],
-            },
-            "editReply",
-        );
-    }
-
-    private generateSelectMenu(cmd: string, author: string): SelectMenuComponentOptionData[] {
-        const emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
-        const matching = [...this.client.commands.values()]
-            .filter((x) => {
-                const isDev = this.client.config.devs.includes(author);
-                if (isDev) {
-                    return x.meta.name.includes(cmd);
-                }
-                return x.meta.name.includes(cmd) && x.meta.devOnly !== true;
-            })
-            .slice(0, 10)
-            .map((x, i) => ({
-                label: x.meta.name,
-                emoji: emojis[i],
-                description:
-                    x.meta.description !== undefined && x.meta.description.length > 47
-                        ? `${x.meta.description.slice(0, 47)}...`
-                        : (x.meta.description ?? ""),
-                value: x.meta.name,
-            }));
-        return matching;
+        await ctx.reply({ embeds: [embed] });
     }
 }

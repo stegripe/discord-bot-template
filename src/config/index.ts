@@ -1,8 +1,19 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { ActivityType, type ClientOptions, IntentsBitField, Options } from "discord.js";
-import { type PresenceData } from "../typings/index.js";
 import { prefix } from "./env.js";
 
-export const clientOptions: ClientOptions = {
+const rootDir: string = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+export const clientOptions: ClientOptions & {
+    loadMessageCommandListeners: boolean;
+    defaultPrefix: string;
+    baseUserDirectory: string;
+} = {
+    presence: {
+        status: "dnd",
+        activities: [{ name: "Loading...", type: ActivityType.Playing }],
+    },
     intents: [
         IntentsBitField.Flags.MessageContent,
         IntentsBitField.Flags.GuildMessages,
@@ -10,7 +21,6 @@ export const clientOptions: ClientOptions = {
     ],
     makeCache: Options.cacheWithLimits({
         ...Options.DefaultSweeperSettings,
-        // biome-ignore lint/style/useNamingConvention: Discord.js API naming convention
         ThreadManager: {
             maxSize: Number.POSITIVE_INFINITY,
         },
@@ -22,19 +32,9 @@ export const clientOptions: ClientOptions = {
             lifetime: 10_800,
         },
     },
-};
-
-export const presenceData: PresenceData = {
-    activities: [
-        { name: `my prefix is ${prefix}`, type: ActivityType.Playing },
-        { name: "with {userCount} users", type: ActivityType.Playing },
-        {
-            name: "{textChannelCount} of text channels in {guildCount} guilds",
-            type: ActivityType.Watching,
-        },
-    ],
-    interval: 60_000,
-    status: ["online"],
+    loadMessageCommandListeners: true,
+    defaultPrefix: prefix,
+    baseUserDirectory: rootDir,
 };
 
 export * from "./constants.js";

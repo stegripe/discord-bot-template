@@ -1,10 +1,10 @@
 import { type ColorResolvable, EmbedBuilder } from "discord.js";
-import { embedColor } from "../../config/index.js";
+import { embedColor } from "../../config/env.js";
 
 type HexColorsType = "error" | "info" | "success" | "warn";
-const hexColors: Record<HexColorsType, string> = {
+const hexColors: Record<HexColorsType, string | ColorResolvable> = {
     error: "Red",
-    info: embedColor as string,
+    info: embedColor,
     success: "Green",
     warn: "Yellow",
 };

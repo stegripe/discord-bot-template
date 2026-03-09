@@ -1,41 +1,39 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { Client, type ShardClientUtil } from "discord.js";
-import got from "got";
+import process from "node:process";
+import { container, SapphireClient } from "@sapphire/framework";
+import { PinoLogger } from "@stegripe/pino-logger";
+import { type ClientOptions } from "discord.js";
 import * as config from "../config/index.js";
-import { createLogger } from "../utils/functions/createLogger.js";
-import { formatMS } from "../utils/functions/formatMS.js";
-import { ClientUtils } from "../utils/structures/ClientUtils.js";
-import { CommandManager } from "../utils/structures/CommandManager.js";
-import { EventLoader } from "../utils/structures/EventLoader.js";
+import { messageResponseTracker } from "../utils/index.js";
 
-const basePath: string = path.dirname(fileURLToPath(import.meta.url));
-
-export class BotClient extends Client {
-    public readonly request = got;
+export class BotClient extends SapphireClient {
     public readonly config = config;
-    public readonly utils = new ClientUtils(this);
-    public readonly commands = new CommandManager(this);
-    public readonly events = new EventLoader(this);
-    public readonly logger = createLogger({
-        name: "bot",
-        shardId: (this.shard as unknown as ShardClientUtil).ids[0],
-        type: "shard",
-        dev: this.config.isDev,
-    });
 
-    public async build(token?: string): Promise<this> {
-        const start = Date.now();
-        await this.events.readFromDir(path.resolve(basePath, "..", "events"));
-        const listener = (): void => {
-            void this.commands.readFromDir(path.resolve(basePath, "..", "commands"));
-            this.logger.info(`Ready in ${formatMS(Date.now() - start)}.`);
+    public constructor(
+        clientOptions: ClientOptions & {
+            loadMessageCommandListeners?: boolean;
+            defaultPrefix?: string;
+            baseUserDirectory?: string;
+        },
+    ) {
+        super({
+            ...clientOptions,
+            logger: {
+                instance: new PinoLogger({
+                    name: "bot",
+                    timestamp: true,
+                    level: config.isDev ? "debug" : "info",
+                    formatters: {
+                        bindings: () => ({ pid: `Bot@${process.pid}` }),
+                    },
+                }),
+            },
+        });
 
-            this.removeAllListeners("ready");
-        };
+        container.config = config;
+        container.messageResponseTracker = messageResponseTracker;
+    }
 
-        this.on("ready", listener);
-        await this.login(token);
-        return this;
+    public override async login(token?: string): Promise<string> {
+        return super.login(token);
     }
 }

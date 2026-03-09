@@ -1,9 +1,9 @@
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import { type DMChannel, type NewsChannel, type TextChannel, type ThreadChannel } from "discord.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { type CommandContext } from "../../structures/CommandContext.js";
-import { Command } from "../../utils/decorators/Command.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { type Command } from "@sapphire/framework";
+import { type CommandContext, ContextCommand } from "@stegripe/command-context";
+import { PermissionFlagsBits, type SlashCommandBuilder } from "discord.js";
 import { createEmbed } from "../../utils/functions/createEmbed.js";
 
 const execPromise: (
@@ -11,34 +11,59 @@ const execPromise: (
     options: { encoding: BufferEncoding },
 ) => Promise<{ stdout: string; stderr: string }> = promisify(exec);
 
-@Command<typeof ExecCommand>({
-    aliases: ["$", "bash", "execute"],
-    description: "Executes bash command.",
-    devOnly: true,
+@ApplyOptions<Command.Options>({
     name: "exec",
-    usage: "{prefix}exec <bash>",
+    aliases: ["$", "bash", "execute"],
+    description: "Executes a bash command.",
+    preconditions: ["DevOnly"],
+    requiredClientPermissions: [
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
+    ],
+    chatInputCommand(
+        builder: Parameters<NonNullable<Command.Options["chatInputCommand"]>>[0],
+        opts: Parameters<NonNullable<Command.Options["chatInputCommand"]>>[1],
+    ): SlashCommandBuilder {
+        return builder
+            .setName(opts.name ?? "exec")
+            .setDescription(opts.description ?? "Executes a bash command.")
+            .addStringOption((option) =>
+                option
+                    .setName("command")
+                    .setDescription("The bash command to execute")
+                    .setRequired(true),
+            ) as SlashCommandBuilder;
+    },
 })
-export class ExecCommand extends BaseCommand {
-    public async execute(ctx: CommandContext): Promise<void> {
-        if (ctx.args.length === 0) {
+export class ExecCommand extends ContextCommand {
+    public async contextRun(ctx: CommandContext): Promise<void> {
+        if (ctx.isCommandInteraction() && !ctx.deferred) {
+            await ctx.deferReply();
+        }
+
+        let command = "";
+        if (ctx.isChatInputInteractionContext()) {
+            command = ctx.options.getString("command") ?? "";
+        } else if (ctx.isMessageContext()) {
+            command = (await ctx.args?.restResult("string"))?.unwrapOr("") ?? "";
+        }
+
+        if (!command) {
             await ctx.reply({
                 embeds: [createEmbed("error", "Please provide a bash command to execute.", true)],
             });
             return;
         }
 
-        const msg = await ctx.reply({ content: `❯_ ${ctx.args.join(" ")}` });
+        const msg = await ctx.reply({ content: `❯_ ${command}` });
         try {
-            const execRes = await execPromise(ctx.args.join(" "), { encoding: "utf8" });
+            const execRes = await execPromise(command, { encoding: "utf8" });
             const pages = ExecCommand.paginate(execRes.stdout);
-            const channel = ctx.channel as
-                | DMChannel
-                | NewsChannel
-                | TextChannel
-                | ThreadChannel
-                | null;
             for (const page of pages) {
-                await channel?.send(`\`\`\`\n${page}\`\`\``);
+                if (ctx.channel?.isSendable()) {
+                    await ctx.channel.send(`\`\`\`\n${page}\`\`\``);
+                }
             }
         } catch (error) {
             await msg.edit(`\`\`\`js\n${(error as Error).message}\`\`\``);
@@ -58,7 +83,6 @@ export class ExecCommand extends BaseCommand {
 
             if (line.length > limit) {
                 const lineChunks = line.length / limit;
-
                 for (let i = 0; i < lineChunks; i++) {
                     const start = i * limit;
                     const end = start + limit;

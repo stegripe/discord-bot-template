@@ -1,39 +1,33 @@
-FROM ghcr.io/hazmi35/node:24-dev-alpine as build-stage
+FROM node:24-alpine AS build-stage
 
-# Prepare pnpm with corepack (experimental feature)
-RUN corepack enable && corepack prepare pnpm@latest
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy package.json, lockfile and npm config files
-COPY package.json pnpm-lock.yaml *.npmrc  ./
+WORKDIR /tmp/build
 
-# Fetch dependencies to virtual store
-RUN pnpm fetch
+COPY package.json pnpm-lock.yaml .npmrc* ./
 
-# Install dependencies
-RUN pnpm install --offline --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
-# Copy Project files
 COPY . .
 
-# Build TypeScript Project
-RUN pnpm run build
-
-# Prune devDependencies
+ARG COMMIT_SHA
+RUN echo "COMMIT_SHA=${COMMIT_SHA:-Unknown}" > /tmp/build/.env.build
+RUN pnpm build
 RUN pnpm prune --production
 
-# Get ready for production
-FROM ghcr.io/hazmi35/node:24-alpine
+FROM node:24-alpine
 
-LABEL name "discord-bot-template"
-LABEL maintainer "Stegripe Development <support@stegripe.org>"
+LABEL name="discord-bot-template"
+LABEL maintainer="Stegripe Development <support@stegripe.org>"
 
-# Copy needed files
-COPY --from=build-stage /tmp/build/package.json .
+WORKDIR /app
+
+COPY --from=build-stage /tmp/build/package.json ./
 COPY --from=build-stage /tmp/build/node_modules ./node_modules
 COPY --from=build-stage /tmp/build/dist ./dist
+COPY --from=build-stage /tmp/build/.env.build ./
 
-# Additional Environment Variables
-ENV NODE_ENV production
+RUN cat .env.build >> /app/.env || true
+ENV NODE_ENV=production
 
-# Start the app with node
-CMD ["node", "--es-module-specifier-resolution=node", "dist/index.js"]
+CMD ["node", "-r", "dotenv/config", "."]

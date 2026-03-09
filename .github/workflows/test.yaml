@@ -1,4 +1,4 @@
-name: Lint code and compile setup script
+name: Lint code and compile
 
 on:
   push:

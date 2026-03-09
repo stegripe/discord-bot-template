@@ -1,38 +1,59 @@
 import process from "node:process";
 import { inspect } from "node:util";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { type CommandContext } from "../../structures/CommandContext.js";
-import { Command } from "../../utils/decorators/Command.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { type Command } from "@sapphire/framework";
+import { type CommandContext, ContextCommand } from "@stegripe/command-context";
+import { PermissionFlagsBits, type SlashCommandBuilder } from "discord.js";
 import { createEmbed } from "../../utils/functions/createEmbed.js";
 
-@Command<typeof EvalCommand>({
-    aliases: ["evaluate", "ev", "js-exec"],
-    description: "Evaluate to the bot.",
-    devOnly: true,
+@ApplyOptions<Command.Options>({
     name: "eval",
-    usage: "{prefix}eval <some code>",
+    aliases: ["evaluate", "ev", "js-exec"],
+    description: "Evaluate JavaScript code.",
+    preconditions: ["DevOnly"],
+    requiredClientPermissions: [
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
+    ],
+    chatInputCommand(
+        builder: Parameters<NonNullable<Command.Options["chatInputCommand"]>>[0],
+        opts: Parameters<NonNullable<Command.Options["chatInputCommand"]>>[1],
+    ): SlashCommandBuilder {
+        return builder
+            .setName(opts.name ?? "eval")
+            .setDescription(opts.description ?? "Evaluate JavaScript code.")
+            .addStringOption((option) =>
+                option.setName("code").setDescription("The code to evaluate").setRequired(true),
+            ) as SlashCommandBuilder;
+    },
 })
-export class EvalCommand extends BaseCommand {
-    public async execute(ctx: CommandContext): Promise<void> {
+export class EvalCommand extends ContextCommand {
+    public async contextRun(ctx: CommandContext): Promise<void> {
+        if (ctx.isCommandInteraction() && !ctx.deferred) {
+            await ctx.deferReply();
+        }
+
+        let code = "";
+        if (ctx.isChatInputInteractionContext()) {
+            code = ctx.options.getString("code") ?? "";
+        } else if (ctx.isMessageContext()) {
+            code = (await ctx.args?.restResult("string"))?.unwrapOr("") ?? "";
+        }
+
+        if (!code) {
+            await ctx.reply({
+                embeds: [createEmbed("error", "No code was provided.", true)],
+            });
+            return;
+        }
+
         const embed = createEmbed("info").addFields({
             name: "Input",
-            value: `\`\`\`js\n${ctx.args.join(" ")}\`\`\``,
+            value: `\`\`\`js\n${code}\`\`\``,
         });
 
         try {
-            const code = ctx.args
-                .join(" ")
-                .replace(/^\s*\n?(```(?:\S+\n)?(.*?)```|.*)$/su, (_, a: string, b: string) =>
-                    a.startsWith("```") ? b : a,
-                );
-            if (!code) {
-                await ctx.reply({
-                    embeds: [createEmbed("error", "No code was provided.", true)],
-                });
-
-                return;
-            }
-
             const isAsync = /.*\s--async\s*(?:--silent)?$/u.test(code);
             const isSilent = /.*\s--silent\s*(?:--async)?$/u.test(code);
             const toExecute =
@@ -40,7 +61,7 @@ export class EvalCommand extends BaseCommand {
                     ? code.replace(/--(?:async|silent)\s*(?:--(?:silent|async))?$/u, "")
                     : code;
             const evaled = inspect(
-                // biome-ignore lint/security/noGlobalEval: This is a developer eval command, it's intentionally using eval
+                // biome-ignore lint/security/noGlobalEval: This is a developer eval command
                 await eval(isAsync ? `(async () => {\n${toExecute}\n})()` : toExecute),
                 { depth: 0 },
             );
@@ -56,29 +77,16 @@ export class EvalCommand extends BaseCommand {
                     : `\`\`\`js\n${cleaned}\`\`\``;
 
             embed.addFields({ name: "Output", value: output });
-
-            try {
-                await ctx.reply({
-                    embeds: [embed],
-                });
-            } catch (error) {
-                this.client.logger.error({ err: error }, "PROMISE_ERR");
-            }
-        } catch (error_) {
-            const cleaned = this.clean(String(error_));
+            await ctx.reply({ embeds: [embed] });
+        } catch (error) {
+            const cleaned = this.clean(String(error));
             const isTooLong = cleaned.length > 1_024;
-            const error = isTooLong
+            const errorOutput = isTooLong
                 ? `${await this.hastebin(cleaned)}.js`
                 : `\`\`\`js\n${cleaned}\`\`\``;
 
-            embed.setColor("Red").addFields({ name: "Error", value: error });
-            try {
-                await ctx.reply({
-                    embeds: [embed],
-                });
-            } catch (error__) {
-                this.client.logger.error({ err: error__ }, "PROMISE_ERR");
-            }
+            embed.setColor("Red").addFields({ name: "Error", value: errorOutput });
+            await ctx.reply({ embeds: [embed] });
         }
     }
 
@@ -93,12 +101,11 @@ export class EvalCommand extends BaseCommand {
     }
 
     private async hastebin(text: string): Promise<string> {
-        const result = await this.client.request
-            .post("https://bin.stegripe.org/documents", {
-                body: text,
-            })
-            .json<{ key: string }>();
-
+        const response = await fetch("https://bin.stegripe.org/documents", {
+            method: "POST",
+            body: text,
+        });
+        const result = (await response.json()) as { key: string };
         return `https://bin.stegripe.org/${result.key}`;
     }
 }

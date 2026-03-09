@@ -1,46 +1,64 @@
-import { type ColorResolvable } from "discord.js";
-import { BaseCommand } from "../../structures/BaseCommand.js";
-import { type CommandContext } from "../../structures/CommandContext.js";
-import { Command } from "../../utils/decorators/Command.js";
+import { ApplyOptions } from "@sapphire/decorators";
+import { type Command } from "@sapphire/framework";
+import { type CommandContext, ContextCommand } from "@stegripe/command-context";
+import { type ColorResolvable, PermissionFlagsBits, type SlashCommandBuilder } from "discord.js";
 import { createEmbed } from "../../utils/functions/createEmbed.js";
 
-@Command<typeof PingCommand>({
+@ApplyOptions<Command.Options>({
+    name: "ping",
     aliases: ["pong", "pang", "pung", "peng", "pingpong"],
     description: "Shows current ping of the bot.",
-    name: "ping",
-    usage: "{prefix}ping",
+    requiredClientPermissions: [
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
+    ],
+    chatInputCommand(
+        builder: Parameters<NonNullable<Command.Options["chatInputCommand"]>>[0],
+        opts: Parameters<NonNullable<Command.Options["chatInputCommand"]>>[1],
+    ): SlashCommandBuilder {
+        return builder
+            .setName(opts.name ?? "ping")
+            .setDescription(
+                opts.description ?? "Shows current ping of the bot.",
+            ) as SlashCommandBuilder;
+    },
 })
-export class PingCommand extends BaseCommand {
-    public async execute(ctx: CommandContext): Promise<void> {
-        const msg = await ctx.reply("🏓");
+export class PingCommand extends ContextCommand {
+    public async contextRun(ctx: CommandContext): Promise<void> {
+        if (ctx.isCommandInteraction() && !ctx.deferred) {
+            await ctx.deferReply();
+        }
+
+        const msg = await ctx.reply({ content: "🏓" });
         const latency = msg.createdTimestamp - ctx.context.createdTimestamp;
-        const wsLatency = this.client.ws.ping.toFixed(0);
+        const wsLatency = this.container.client.ws.ping.toFixed(0);
         const embed = createEmbed("info")
-            .setColor(PingCommand.searchHex(wsLatency))
+            .setColor(PingCommand.searchHex(Number(wsLatency)))
             .setAuthor({ name: "🏓 PONG" })
             .addFields(
                 {
                     name: "📶 **|** API",
-                    value: `**\`${latency}\`** ms`,
+                    value: `\`${latency}\` ms`,
                     inline: true,
                 },
                 {
                     name: "🌐 **|** WebSocket",
-                    value: `**\`${wsLatency}\`** ms`,
+                    value: `\`${wsLatency}\` ms`,
                     inline: true,
                 },
             )
             .setFooter({
-                text: `Latency of: ${this.client.user?.tag}`,
-                iconURL: this.client.user?.displayAvatarURL(),
+                text: `Latency of: ${this.container.client.user?.tag}`,
+                iconURL: this.container.client.user?.displayAvatarURL(),
             })
             .setTimestamp();
 
-        await msg.edit({ content: " ", embeds: [embed] });
+        await msg.edit({ content: "", embeds: [embed] });
     }
 
-    private static searchHex(ms: number | string): ColorResolvable {
-        const listColorHex = [
+    private static searchHex(ms: number): ColorResolvable {
+        const listColorHex: [number, number, string][] = [
             [0, 20, "Green"],
             [21, 50, "Green"],
             [51, 100, "Yellow"],
