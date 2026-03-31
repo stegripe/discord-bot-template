@@ -38,7 +38,7 @@
         "@stegripe/command-context": "^1.2.0",
         "@stegripe/pino-logger": "^1.2.0",
         "date-fns": "^4.1.0",
-        "discord.js": "^14.25.1",
+        "discord.js": "^14.26.0",
         "dotenv": "^17.3.1",
         "pino": "^10.3.1",
         "pino-pretty": "^13.1.3",
