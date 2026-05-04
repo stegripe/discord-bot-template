@@ -2,7 +2,7 @@
     "name": "discord-bot-template",
     "version": "1.0.0",
     "description": "A template for Stegripe Discord bot projects.",
-    "license": "AGPL-3.0",
+    "license": "CC-BY-NC-ND-4.0",
     "author": "Stegripe Development <support@stegripe.org>",
     "repository": {
         "type": "git",
