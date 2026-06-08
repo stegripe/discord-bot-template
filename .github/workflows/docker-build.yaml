@@ -6,7 +6,7 @@ on:
       - created
   push:
     branches:
-      - "**"
+      - main
   pull_request:
     branches:
       - "**"
@@ -14,4 +14,3 @@ on:
 jobs:
   docker:
     uses: stegripe/workflows/.github/workflows/docker-build-and-push.yaml@main # main
-
