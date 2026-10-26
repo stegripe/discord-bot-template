@@ -7,7 +7,7 @@ const client: BotClient = new BotClient(clientOptions);
 
 async function gracefulShutdown(signal: string): Promise<void> {
     container.logger.info(`Received ${signal}, shutting down gracefully...`);
-    client.destroy();
+    await client.destroy();
     process.exit(0);
 }
 
